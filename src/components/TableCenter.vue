@@ -151,7 +151,7 @@ const deckStyle = computed(() => {
 <style scoped>
 .center { display: flex; align-items: center; gap: 28px; }
 .piles { display: grid; grid-template-columns: auto auto; gap: 12px 22px; align-items: end; justify-items: center; }
-.pile { display: grid; justify-items: center; gap: 22px; }
+.pile { display: grid; justify-items: center; gap: 18px; }
 .label { font-size: 13px; font-weight: 800; color: #fff6dc; text-shadow: 0 1px 0 rgba(0, 0, 0, .5); }
 .pile-cards { position: relative; width: 92px; aspect-ratio: 63 / 88; }
 /* An empty pile leaves a faint patch where the cards were. */

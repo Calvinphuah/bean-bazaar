@@ -752,7 +752,7 @@ function ordinal(place: number): string {
 .tool:focus-visible { outline: 3px solid var(--gold); outline-offset: 1px; }
 
 /* Three bands: room for the bots along the top, the market, then your farm. */
-.felt { position: relative; display: grid; grid-template-rows: 132px minmax(0, 1fr) auto; justify-items: center; align-items: center; }
+.felt { position: relative; display: grid; grid-template-rows: 124px minmax(0, 1fr) auto; justify-items: center; align-items: center; }
 /* Lantern light drifts slowly over the table, so quiet moments still feel alive;
    it glows a little warmer each season as the market heats up. */
 .felt::before {
