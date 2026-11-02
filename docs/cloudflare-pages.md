@@ -2,7 +2,7 @@
 
 Bean Bazaar builds to plain static files in `dist/`, so Cloudflare Pages can host it for free. Pages builds and deploys every push to `main`, and gives each pull request its own preview link.
 
-In the steps below, `play.example.com` stands for your subdomain. Swap in your own.
+The site lives at `bean-bazaar.calvinphuah.com`.
 
 ## 1. Create the Pages project
 
@@ -23,7 +23,7 @@ In the steps below, `play.example.com` stands for your subdomain. Swap in your o
 Add the custom domain in Pages **before** you create the DNS record. A CNAME made first can give a 522 error until Pages knows about the domain.
 
 1. In the Pages project, open **Custom domains**, then **Set up a custom domain**.
-2. Enter `play.example.com`, then **Continue**.
+2. Enter `bean-bazaar.calvinphuah.com`, then **Continue**.
 
 Then pick the case that fits your domain.
 
@@ -33,7 +33,7 @@ Cloudflare offers to add the record for you. Press **Activate domain**. It creat
 
 | Type  | Name   | Target                       | Proxy   |
 |-------|--------|------------------------------|---------|
-| CNAME | `play` | `bean-bazaar-play.pages.dev` | Proxied |
+| CNAME | `bean-bazaar` | `bean-bazaar-play.pages.dev` | Proxied |
 
 ### Your domain's DNS is somewhere else
 
@@ -44,7 +44,7 @@ Use this path if your registrar or another DNS host manages your domain's record
 
 | Type  | Name / Host | Value / Target                | TTL  |
 |-------|-------------|-------------------------------|------|
-| CNAME | `play`      | `bean-bazaar-play.pages.dev`  | Auto |
+| CNAME | `bean-bazaar` | `bean-bazaar-play.pages.dev`  | Auto |
 
 3. Back in Pages, press **Check DNS records**. The domain turns **Active** once Cloudflare sees the record. This usually takes a few minutes, and can take up to a day.
 
@@ -52,5 +52,5 @@ Cloudflare sets up HTTPS for the subdomain by itself.
 
 ## 3. Check it
 
-- Open `https://play.example.com`, start a game, make a move, and reload the page. The game should pick up where you left it.
+- Open `https://bean-bazaar.calvinphuah.com`, start a game, make a move, and reload the page. The game should pick up where you left it.
 - Each push to `main` deploys again. Watch the build log under **Deployments** in the Pages project.
