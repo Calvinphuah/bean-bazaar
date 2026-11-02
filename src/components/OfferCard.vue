@@ -160,4 +160,17 @@ const canGiveAny = computed(() => props.offer.choices.some((bean) => props.hand.
 .choice:disabled { opacity: .4; filter: grayscale(.6); }
 .give { padding: 3px 10px; border-radius: 999px; background: var(--gold); color: var(--ink); font-size: 12px; font-weight: 800; border: 2px solid var(--ink); }
 .buttons { display: flex; justify-content: center; gap: 10px; }
+
+@media (orientation: portrait) and (max-width: 700px), (orientation: landscape) and (max-height: 500px) {
+  .offer { gap: 6px; padding: 10px; }
+  .from { gap: 8px; font-size: 16px; }
+  .from img { width: 34px; height: 34px; }
+  .deal { gap: 8px; }
+  .side { font-size: 12px; }
+  .cards { min-height: 0; gap: 4px; flex-wrap: wrap; justify-content: center; }
+  .arrow { font-size: 22px; }
+  .give { padding: 2px 8px; font-size: 11px; }
+  .buttons { flex-wrap: wrap; gap: 6px; }
+  .buttons button { flex: 1; padding: 6px 10px; font-size: 13px; white-space: nowrap; }
+}
 </style>

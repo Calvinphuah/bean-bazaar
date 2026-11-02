@@ -195,4 +195,24 @@ h3 { font-size: 14px; }
 .footer { display: flex; gap: 8px; align-items: center; }
 .status { margin: 0; flex: 1; font-size: 12px; font-weight: 800; line-height: 1.3; }
 .buttons { display: flex; gap: 6px; flex: none; }
+
+/* Phones: the bar fills the width it gets, and each bean column shrinks to fit. */
+@media (orientation: portrait) and (max-width: 700px), (orientation: landscape) and (max-height: 500px) {
+  .trade { width: 100%; padding: 8px; gap: 4px; }
+  h3 { font-size: 12px; }
+  .chips { min-height: 44px; }
+  .chips, .asks { grid-template-columns: repeat(var(--beans), minmax(0, 1fr)); }
+  .chip, .ask img { width: 100%; max-width: 26px; }
+  .ask { padding: 3px 1px; }
+  .ask-name { display: none; }
+  .ask-count { right: 0; font-size: 10px; padding: 0 4px; }
+  .less { width: 22px; height: 22px; top: -6px; left: -2px; }
+  .footer { flex-wrap: wrap; }
+  .status { font-size: 11px; }
+}
+@media (orientation: portrait) and (max-width: 700px) {
+  /* Each row's title sits beside it, so the bar stays short. */
+  .section { grid-template-columns: 50px minmax(0, 1fr); align-items: center; gap: 4px; }
+  h3 { font-size: 11px; line-height: 1.2; }
+}
 </style>

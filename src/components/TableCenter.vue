@@ -207,4 +207,23 @@ const deckStyle = computed(() => {
 }
 .flip-leave-active { transition: all .3s ease; }
 .flip-leave-to { opacity: 0; transform: translateY(40px) scale(.85); }
+
+@media (orientation: portrait) and (max-width: 700px), (orientation: landscape) and (max-height: 500px) {
+  .center { gap: 16px; }
+  .piles { gap: 8px 14px; }
+  .pile { gap: 8px; }
+  .pile-cards { width: 56px; }
+  .label { font-size: 11px; }
+  .count { top: -8px; right: -8px; min-width: 24px; height: 22px; font-size: 11px; }
+  .seasons { gap: 6px; padding: 2px 8px; font-size: 11px; }
+  .segment { width: 12px; }
+  .face-up { gap: 8px; min-height: 120px; min-width: 164px; }
+}
+
+/* On its side the phone is short, so the flipped cards sit under the deck. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .center { flex-direction: column; gap: 4px; }
+  .pile { gap: 6px; }
+  .pile-cards { width: 50px; }
+}
 </style>

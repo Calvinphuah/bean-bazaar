@@ -1,0 +1,16 @@
+{
+  "name": "Bean Bazaar",
+  "short_name": "Bean Bazaar",
+  "description": "Plant, trade and harvest beans against friendly bots.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "any",
+  "background_color": "#8c4f2b",
+  "theme_color": "#a8653a",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

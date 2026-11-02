@@ -173,4 +173,13 @@ function onDrop(): void {
 .info { display: grid; justify-items: center; text-align: center; font-size: 11px; min-height: 30px; color: #fff6dc; text-shadow: 0 1px 0 rgba(0, 0, 0, .5); }
 .info strong { font-size: 13px; color: #ffe27a; }
 .actions { margin-top: auto; display: flex; flex-direction: column; gap: 5px; }
+
+@media (orientation: portrait) and (max-width: 700px), (orientation: landscape) and (max-height: 500px) {
+  .field { width: 88px; min-height: 148px; padding: 4px; gap: 4px; }
+  .placeholder { width: 64px; font-size: 11px; }
+  .info { min-height: 26px; font-size: 10px; }
+  .info strong { font-size: 12px; }
+  .badge { min-width: 24px; height: 24px; font-size: 13px; }
+  .actions button { padding: 6px 10px; font-size: 12px; white-space: nowrap; }
+}
 </style>

@@ -140,4 +140,23 @@ const stacks = computed(() =>
 .full .stack { width: 26px; height: 40px; }
 .full .stack img { width: 26px; }
 .full .beans { font-size: 14px; }
+
+/* Phones: every card a size smaller, so the table fits a small screen. */
+@media (orientation: portrait) and (max-width: 700px), (orientation: landscape) and (max-height: 500px) {
+  .card.small { width: 64px; }
+  .card.medium { width: 78px; padding: 3px; }
+  .card.large { width: 96px; padding: 3px; border-radius: 9px; }
+  .card.full { width: 150px; padding: 5px; }
+  .name { font-size: 8px; top: 4px; left: 4px; }
+  .count { font-size: 16px; }
+  .medium .name, .large .name { font-size: 9px; top: 5px; left: 5px; }
+  .medium .count { font-size: 18px; }
+  .large .count { font-size: 20px; -webkit-text-stroke-width: 3px; }
+  .full .name { font-size: 12px; }
+  .full .count { font-size: 26px; }
+  .stack { width: 13px; height: 25px; }
+  .stack img { width: 13px; }
+  .full .stack { width: 20px; height: 34px; }
+  .full .stack img { width: 20px; }
+}
 </style>
