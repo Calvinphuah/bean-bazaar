@@ -445,11 +445,14 @@ function ordinal(place: number): string {
             :bean-types="beanTypes"
             :status="trade.status.value"
             :busy="busy"
+            :partners="trade.acceptors.value.map((index) => ({ index, name: nameOf(index) }))"
+            :gift="trade.isGift.value"
             @ask="trade.changeAsk"
             @remove="trade.removeGive"
             @point="pointedBean = $event"
             @clear="trade.clear"
             @done="move({ type: isBidding ? 'close_bids' : 'end_trading' })"
+            @trade="trade.tradeWith"
           />
           <p
             v-else-if="instruction"

@@ -11,6 +11,10 @@ const props = defineProps<{
   busy: boolean
   // The bot you are bidding to on its turn: its face-up cards are then yours to get.
   bidWith: string | null
+  // Bots that said yes, so you can close the deal here instead of hunting for their seats.
+  partners: { index: number; name: string }[]
+  // Your offer asks for nothing back, so the buttons say give instead of trade.
+  gift: boolean
 }>()
 
 // point: the bean under the pointer, so the table can show it big; null when it leaves.
@@ -20,6 +24,7 @@ const emit = defineEmits<{
   point: [bean: BeanKey | null]
   clear: []
   done: []
+  trade: [partner: number]
 }>()
 
 const beans = computed(() => Object.values(props.beanTypes))
@@ -121,12 +126,29 @@ const hasOffer = computed(() => props.gives.length > 0 || Object.keys(props.asks
     </div>
 
     <div class="footer">
-      <p
+      <div
         class="status"
         aria-live="polite"
       >
-        {{ status }}
-      </p>
+        <div
+          v-if="partners.length"
+          class="partners"
+        >
+          {{ gift ? "Give to" : "Trade with" }}
+          <button
+            v-for="partner in partners"
+            :key="partner.index"
+            class="small"
+            :disabled="busy"
+            @click="emit('trade', partner.index)"
+          >
+            {{ partner.name }}
+          </button>
+        </div>
+        <template v-else>
+          {{ status }}
+        </template>
+      </div>
 
       <div class="buttons">
         <button
@@ -194,5 +216,6 @@ h3 { font-size: 14px; }
 }
 .footer { display: flex; gap: 8px; align-items: center; }
 .status { margin: 0; flex: 1; font-size: 12px; font-weight: 800; line-height: 1.3; }
+.partners { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 .buttons { display: flex; gap: 6px; flex: none; }
 </style>
