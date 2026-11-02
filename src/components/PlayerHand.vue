@@ -23,16 +23,16 @@ const props = defineProps<{
 // point: the bean under the pointer, so the table can show it big; null when it leaves.
 const emit = defineEmits<{ pick: [index: number]; point: [bean: BeanKey | null] }>()
 
-// localStorage can throw in private windows; then the hand just starts front-left.
+// localStorage can throw in private windows; then the hand just starts front-right.
 function savedFrontOnRight(): boolean {
   try {
-    return localStorage.getItem(FRONT_SIDE_KEY) === "yes"
+    return localStorage.getItem(FRONT_SIDE_KEY) !== "no"
   } catch {
-    return false
+    return true
   }
 }
 
-// Some players like the card to plant next on the right, nearest their mouse hand.
+// The card to plant next starts on the right, nearest the mouse hand; players can swap it left.
 const frontOnRight = ref(savedFrontOnRight())
 
 watch(frontOnRight, (onRight) => {

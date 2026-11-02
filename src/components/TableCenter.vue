@@ -2,7 +2,7 @@
 import { computed } from "vue"
 import BeanCard from "./BeanCard.vue"
 import { MAX_RUN_OUTS } from "../rules"
-import type { BeanType, TableSnapshot } from "../types"
+import type { BeanKey, BeanType, TableSnapshot } from "../types"
 
 // One edge line per this many cards, so a full deck looks thick and a low one thin.
 const CARDS_PER_EDGE = 12
@@ -16,7 +16,8 @@ const props = defineProps<{
   pickable: boolean
 }>()
 
-const emit = defineEmits<{ pick: [index: number] }>()
+// point: the bean under the pointer, so the table can show it big; null when it leaves.
+const emit = defineEmits<{ pick: [index: number]; point: [bean: BeanKey | null] }>()
 
 // Each run through the deck is a season; the game ends when the last one runs out.
 const season = computed(() => Math.min(props.table.deck.run_outs + 1, MAX_RUN_OUTS))
@@ -130,6 +131,8 @@ const deckStyle = computed(() => {
             :aria-pressed="pickedFaceUp.includes(index)"
             :aria-label="`Offer the face-up ${beanTypes[bean]!.name} bean`"
             @click="emit('pick', index)"
+            @mouseenter="emit('point', bean)"
+            @mouseleave="emit('point', null)"
           >
             <BeanCard
               :bean="beanTypes[bean]!"
@@ -141,6 +144,8 @@ const deckStyle = computed(() => {
             v-else-if="beanTypes[bean]"
             :bean="beanTypes[bean]!"
             size="medium"
+            @mouseenter="emit('point', bean)"
+            @mouseleave="emit('point', null)"
           />
         </template>
       </TransitionGroup>
@@ -151,7 +156,7 @@ const deckStyle = computed(() => {
 <style scoped>
 .center { display: flex; align-items: center; gap: 28px; }
 .piles { display: grid; grid-template-columns: auto auto; gap: 12px 22px; align-items: end; justify-items: center; }
-.pile { display: grid; justify-items: center; gap: 22px; }
+.pile { display: grid; justify-items: center; gap: 18px; }
 .label { font-size: 13px; font-weight: 800; color: #fff6dc; text-shadow: 0 1px 0 rgba(0, 0, 0, .5); }
 .pile-cards { position: relative; width: 92px; aspect-ratio: 63 / 88; }
 /* An empty pile leaves a faint patch where the cards were. */
