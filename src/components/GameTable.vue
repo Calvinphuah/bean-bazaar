@@ -58,7 +58,7 @@ const SEAT_SPOTS: Record<number, string[]> = {
 const showLog = ref(false)
 const showPayouts = ref(false)
 const pickedPending = ref<number | null>(null)
-// The bean under the pointer in your hand, a field or the trade bar, shown big with its coin row.
+// The bean under the pointer in your hand, a field, the market or the trade bar, shown big with its coin row.
 const pointedBean = ref<BeanKey | null>(null)
 
 const beanTypes = computed<Record<string, BeanType>>(() =>
@@ -101,6 +101,8 @@ const isBidding = computed(() => live.value && props.game.bidding)
 const isDealing = computed(() => isTrading.value || isBidding.value)
 // The trade bar's buttons can vanish under the pointer, so its preview closes with it.
 watch(isDealing, (dealing) => { if (!dealing) pointedBean.value = null })
+// A traded market card vanishes under the pointer too.
+watch(() => props.table.face_up.length, () => { pointedBean.value = null })
 // Not tied to `live`: the traded-beans panel stays up while each plant saves and
 // replays, instead of blinking out; only the plant buttons wait for `live`.
 const pendingIndex = computed(() => {
@@ -350,6 +352,7 @@ function ordinal(place: number): string {
           :picked-face-up="trade.pickedFaceUp.value"
           :pickable="isDealing"
           @pick="trade.toggleFaceUp"
+          @point="pointedBean = $event"
         />
       </div>
 
