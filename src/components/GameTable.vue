@@ -30,14 +30,16 @@ const props = defineProps<{
 
 const emit = defineEmits<{ leave: []; skip: []; tutorialDone: []; tutorial: []; toggleSound: [] }>()
 
-// The table is laid out for this size; a smaller window gets the whole table
-// scaled down to fit, never a squashed layout.
+// The table is laid out for this size; any other window gets the whole table
+// scaled to fit, never a squashed layout.
 const TABLE_WIDTH = 1200
 const TABLE_HEIGHT = 820
+// Past 1.5x the 240px card art starts to look soft.
+const MAX_SCALE = 1.5
 const scale = ref(1)
 
 function fitTable(): void {
-  scale.value = Math.min(1, window.innerWidth / TABLE_WIDTH, window.innerHeight / TABLE_HEIGHT)
+  scale.value = Math.min(MAX_SCALE, window.innerWidth / TABLE_WIDTH, window.innerHeight / TABLE_HEIGHT)
 }
 
 onMounted(() => {
