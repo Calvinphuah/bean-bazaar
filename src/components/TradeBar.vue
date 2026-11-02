@@ -187,8 +187,8 @@ h3 { font-size: 14px; }
   position: absolute;
   top: -4px;
   left: 2px;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   padding: 0;
   display: grid;
   place-items: center;
@@ -206,6 +206,12 @@ h3 { font-size: 14px; }
   position: absolute;
   top: -4px;
   right: 6px;
+  /* Same fixed size as the minus button, so the two badges line up at any zoom. */
+  min-width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  line-height: 1;
   background: var(--ok);
   color: #fff;
   font-size: 11px;
