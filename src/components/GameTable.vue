@@ -597,7 +597,7 @@ function ordinal(place: number): string {
             Close
           </button>
         </div>
-        <p>Rarer beans pay more. The number under each coin stack is how many beans that payout needs.</p>
+        <p>The big corner number is how many of that bean are in the deck. Rarer beans pay more. The number under each coin stack is how many beans that payout needs.</p>
         <div class="payout-cards">
           <BeanCard
             v-for="bean in game.bean_types"

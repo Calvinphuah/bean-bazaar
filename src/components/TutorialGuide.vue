@@ -11,6 +11,11 @@ const STEPS = [
     body: "Every turn you must plant the front card (marked Plant next). Drag it onto a field or press Plant here. You may plant the next card too. You can never reorder your hand, so plan ahead.",
   },
   {
+    target: "hand",
+    title: "Reading a card",
+    body: "The big number in the corner is how many of that bean are in the deck. Fewer copies means a rarer bean that pays more. Point at a card to see it big: the number under each coin stack is how many beans you need to harvest for that many coins.",
+  },
+  {
     target: "fields",
     title: "Your fields",
     body: "Each field grows one bean type. Plant the same bean again to make the pile bigger. A third field costs 3 coins. Made a mistake? Undo takes back your last plant, harvest or field.",
