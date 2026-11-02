@@ -776,6 +776,8 @@ function ordinal(place: number): string {
 .felt :deep(.spot-left) { left: 2.5%; top: 150px; }
 .felt :deep(.spot-right) { right: 2.5%; top: 150px; }
 .felt :deep(.spot-top) { left: 50%; top: 0; transform: translateX(-50%); }
+/* The middle top seat has room across but not down, so its fields sit beside the plate, clear of the market. */
+.felt :deep(.seat.spot-top) { grid-template-rows: none; grid-auto-flow: column; gap: 40px; }
 .felt :deep(.spot-top-left) { left: 24%; top: 0; transform: translateX(-50%); }
 .felt :deep(.spot-top-right) { right: 24%; top: 0; transform: translateX(50%); }
 .middle { grid-row: 2; z-index: 1; }
