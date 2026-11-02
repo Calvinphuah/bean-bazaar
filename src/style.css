@@ -1,0 +1,89 @@
+:root {
+  --table: #2f2a26;
+  --table-light: #3d3630;
+  --panel: #f6ead0;
+  --panel-dark: #e8d7b2;
+  --ink: #2b1d14;
+  --gold: #f6c938;
+  --gold-dark: #b8860b;
+  --accent: #c6283a;
+  --muted: #8a7a66;
+  --ok: #3f8a3a;
+  /* A soft overshoot, like a card dropped on felt settling. */
+  --ease-bounce: cubic-bezier(.34, 1.56, .64, 1);
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  color: #f6efe3;
+}
+
+* { box-sizing: border-box; }
+
+/* A warm wooden market table: soft plank lines, grain, and a vignette at the edges. */
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 50% 45%, rgba(255, 214, 150, .28), transparent 65%),
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(30, 14, 4, .55)),
+    repeating-linear-gradient(90deg, rgba(60, 30, 10, .16) 0 2px, transparent 2px 180px),
+    repeating-linear-gradient(90deg, rgba(255, 220, 170, .05) 0 1px, transparent 1px 23px),
+    repeating-linear-gradient(0deg, rgba(90, 45, 15, .06) 0 3px, transparent 3px 11px),
+    linear-gradient(#a8653a, #8c4f2b);
+}
+
+h1, h2, h3 {
+  font-family: "Fraunces", serif;
+  font-weight: 900;
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 6px 14px;
+  background: var(--gold);
+  color: var(--ink);
+  box-shadow: 0 2px 0 var(--ink);
+  transition: transform .1s ease;
+}
+button:hover:not(:disabled) { transform: translateY(-1px); }
+button:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.secondary { background: var(--panel); }
+button.small { padding: 3px 10px; font-size: 13px; }
+button.big { font-size: 17px; padding: 9px 22px; }
+/* Fingers need bigger targets than a mouse pointer. */
+@media (pointer: coarse) { button.small { padding: 8px 14px; } }
+
+/* A card you can pick: a real button, so it works with the keyboard too. */
+.card-button {
+  all: unset;
+  cursor: pointer;
+  border-radius: 10px;
+}
+.card-button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.card-button:disabled { cursor: not-allowed; }
+
+/* Cards sliding in and out of hands and rows. */
+.deal-enter-active, .deal-leave-active { transition: all .25s ease; }
+.deal-enter-from { opacity: 0; transform: translateY(-16px) scale(.9); }
+.deal-leave-to { opacity: 0; transform: translateY(16px) scale(.9); }
+
+.panel {
+  background: var(--panel);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+/* For anyone who asks for less motion, every animation and transition settles at once. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
