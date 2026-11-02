@@ -11,6 +11,10 @@ const props = defineProps<{
   busy: boolean
   // The bot you are bidding to on its turn: its face-up cards are then yours to get.
   bidWith: string | null
+  // Bots that said yes, so you can close the deal here instead of hunting for their seats.
+  partners: { index: number; name: string }[]
+  // Your offer asks for nothing back, so the buttons say give instead of trade.
+  gift: boolean
 }>()
 
 // point: the bean under the pointer, so the table can show it big; null when it leaves.
@@ -20,6 +24,7 @@ const emit = defineEmits<{
   point: [bean: BeanKey | null]
   clear: []
   done: []
+  trade: [partner: number]
 }>()
 
 const beans = computed(() => Object.values(props.beanTypes))
@@ -41,6 +46,13 @@ const getCounts = computed(() => {
   return counts
 })
 const hasOffer = computed(() => props.gives.length > 0 || Object.keys(props.asks).length > 0)
+
+// One less of a bean: drop an ask first, else put back the bot's face-up card you picked last.
+function less(bean: BeanKey): void {
+  if (props.asks[bean]) return emit("ask", bean, -1)
+  const picked = props.gives.filter((give) => give.source === "face_up" && give.bean === bean)
+  if (picked.length) emit("remove", picked[picked.length - 1]!)
+}
 </script>
 
 <template>
@@ -93,7 +105,7 @@ const hasOffer = computed(() => props.gives.length > 0 || Object.keys(props.asks
             :title="`${bean.name} Bean: right-click or press − to ask for one less`"
             :aria-label="`Ask for a ${bean.name} bean${getCounts[bean.key] ? `, ${getCounts[bean.key]} asked` : ''}`"
             @click="emit('ask', bean.key, 1)"
-            @contextmenu.prevent="emit('ask', bean.key, -1)"
+            @contextmenu.prevent="less(bean.key)"
             @mouseenter="emit('point', bean.key)"
             @mouseleave="emit('point', null)"
           >
@@ -109,10 +121,10 @@ const hasOffer = computed(() => props.gives.length > 0 || Object.keys(props.asks
           </button>
           <!-- Right-click needs a mouse; this works for touch and keyboard too. -->
           <button
-            v-if="asks[bean.key]"
+            v-if="getCounts[bean.key]"
             class="less"
             :aria-label="`Ask for one less ${bean.name} bean`"
-            @click="emit('ask', bean.key, -1)"
+            @click="less(bean.key)"
           >
             −
           </button>
@@ -121,12 +133,29 @@ const hasOffer = computed(() => props.gives.length > 0 || Object.keys(props.asks
     </div>
 
     <div class="footer">
-      <p
+      <div
         class="status"
         aria-live="polite"
       >
-        {{ status }}
-      </p>
+        <div
+          v-if="partners.length"
+          class="partners"
+        >
+          {{ gift ? "Give to" : "Trade with" }}
+          <button
+            v-for="partner in partners"
+            :key="partner.index"
+            class="small"
+            :disabled="busy"
+            @click="emit('trade', partner.index)"
+          >
+            {{ partner.name }}
+          </button>
+        </div>
+        <template v-else>
+          {{ status }}
+        </template>
+      </div>
 
       <div class="buttons">
         <button
@@ -184,6 +213,12 @@ h3 { font-size: 14px; }
   position: absolute;
   top: -4px;
   right: 6px;
+  /* Same fixed size as the minus button, so the two badges line up at any zoom. */
+  min-width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  line-height: 1;
   background: var(--ok);
   color: #fff;
   font-size: 11px;
@@ -194,6 +229,7 @@ h3 { font-size: 14px; }
 }
 .footer { display: flex; gap: 8px; align-items: center; }
 .status { margin: 0; flex: 1; font-size: 12px; font-weight: 800; line-height: 1.3; }
+.partners { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 .buttons { display: flex; gap: 6px; flex: none; }
 
 /* Phones: the bar fills the width it gets, and each bean column shrinks to fit. */

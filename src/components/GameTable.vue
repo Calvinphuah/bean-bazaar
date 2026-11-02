@@ -40,12 +40,14 @@ const LAYOUTS = {
 type Layout = keyof typeof LAYOUTS
 const layout = ref<Layout>("table")
 const compact = computed(() => layout.value !== "table")
+// Past 1.5x the 240px card art starts to look soft.
+const MAX_SCALE = 1.5
 const scale = ref(1)
 
 function fitTable(): void {
   layout.value = (["portrait", "landscape"] as const).find((name) => window.matchMedia(LAYOUTS[name].query).matches) ?? "table"
   const size = LAYOUTS[layout.value]
-  scale.value = Math.min(1, window.innerWidth / size.width, window.innerHeight / size.height)
+  scale.value = Math.min(MAX_SCALE, window.innerWidth / size.width, window.innerHeight / size.height)
 }
 
 onMounted(() => {
@@ -65,7 +67,7 @@ const showLog = ref(false)
 const showTools = ref(false)
 const showPayouts = ref(false)
 const pickedPending = ref<number | null>(null)
-// The bean under the pointer in your hand or the trade bar, shown big with its coin row.
+// The bean under the pointer in your hand, a field, the market or the trade bar, shown big with its coin row.
 const pointedBean = ref<BeanKey | null>(null)
 
 const beanTypes = computed<Record<string, BeanType>>(() =>
@@ -108,6 +110,8 @@ const isBidding = computed(() => live.value && props.game.bidding)
 const isDealing = computed(() => isTrading.value || isBidding.value)
 // The trade bar's buttons can vanish under the pointer, so its preview closes with it.
 watch(isDealing, (dealing) => { if (!dealing) pointedBean.value = null })
+// A traded market card vanishes under the pointer too.
+watch(() => props.table.face_up.length, () => { pointedBean.value = null })
 // Not tied to `live`: the traded-beans panel stays up while each plant saves and
 // replays, instead of blinking out; only the plant buttons wait for `live`.
 const pendingIndex = computed(() => {
@@ -361,6 +365,7 @@ function ordinal(place: number): string {
           :side="!compact && (seat.spot === 'left' || seat.spot === 'right') ? seat.spot : 'top'"
           @trade="trade.tradeWith(seat.index)"
           @counter="trade.takeCounter(seat.index)"
+          @point="pointedBean = $event"
         />
       </div>
 
@@ -371,6 +376,7 @@ function ordinal(place: number): string {
           :picked-face-up="trade.pickedFaceUp.value"
           :pickable="isDealing"
           @pick="trade.toggleFaceUp"
+          @point="pointedBean = $event"
         />
       </div>
 
@@ -432,6 +438,8 @@ function ordinal(place: number): string {
               :can-harvest="live && canHarvest(myFields, index)"
               @plant="plantInto(index)"
               @harvest="move({ type: 'harvest', field_index: index })"
+              @mouseenter="pointedBean = field.bean"
+              @mouseleave="pointedBean = null"
             />
             <button
               v-if="canBuyField"
@@ -466,11 +474,14 @@ function ordinal(place: number): string {
             :bean-types="beanTypes"
             :status="trade.status.value"
             :busy="busy"
+            :partners="trade.acceptors.value.map((index) => ({ index, name: nameOf(index) }))"
+            :gift="trade.isGift.value"
             @ask="trade.changeAsk"
             @remove="trade.removeGive"
             @point="pointedBean = $event"
             @clear="trade.clear"
             @done="move({ type: isBidding ? 'close_bids' : 'end_trading' })"
+            @trade="trade.tradeWith"
           />
           <p
             v-else-if="instruction"
@@ -622,7 +633,7 @@ function ordinal(place: number): string {
             Close
           </button>
         </div>
-        <p>Rarer beans pay more. The number under each coin stack is how many beans that payout needs.</p>
+        <p>The big corner number is how many of that bean are in the deck. Rarer beans pay more. The number under each coin stack is how many beans that payout needs.</p>
         <div class="payout-cards">
           <BeanCard
             v-for="bean in game.bean_types"
@@ -770,7 +781,7 @@ function ordinal(place: number): string {
 .more { display: none; }
 
 /* Three bands: room for the bots along the top, the market, then your farm. */
-.felt { position: relative; display: grid; grid-template-rows: 132px minmax(0, 1fr) auto; justify-items: center; align-items: center; }
+.felt { position: relative; display: grid; grid-template-rows: 124px minmax(0, 1fr) auto; justify-items: center; align-items: center; }
 /* Lantern light drifts slowly over the table, so quiet moments still feel alive;
    it glows a little warmer each season as the market heats up. */
 .felt::before {
@@ -795,6 +806,8 @@ function ordinal(place: number): string {
 .felt :deep(.spot-left) { left: 2.5%; top: 150px; }
 .felt :deep(.spot-right) { right: 2.5%; top: 150px; }
 .felt :deep(.spot-top) { left: 50%; top: 0; transform: translateX(-50%); }
+/* The middle top seat has room across but not down, so its fields sit beside the plate, clear of the market. */
+.felt :deep(.seat.spot-top) { grid-template-rows: none; grid-auto-flow: column; gap: 40px; }
 .felt :deep(.spot-top-left) { left: 24%; top: 0; transform: translateX(-50%); }
 .felt :deep(.spot-top-right) { right: 24%; top: 0; transform: translateX(50%); }
 .middle { grid-row: 2; z-index: 1; }

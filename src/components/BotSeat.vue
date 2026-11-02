@@ -3,7 +3,7 @@ import { computed } from "vue"
 import BeanCard from "./BeanCard.vue"
 import { coinText, coinsFor } from "../rules"
 import { useRollingNumber } from "../useRollingNumber"
-import type { BeanType, TableSnapshot } from "../types"
+import type { BeanKey, BeanType, TableSnapshot } from "../types"
 import type { QuoteAnswer, TradeCounter } from "../api"
 
 const props = defineProps<{
@@ -28,7 +28,8 @@ const props = defineProps<{
   side: "left" | "right" | "top"
 }>()
 
-const emit = defineEmits<{ trade: []; counter: [] }>()
+// point: the bean under the pointer, so the table can show it big; null when it leaves.
+const emit = defineEmits<{ trade: []; counter: []; point: [bean: BeanKey | null] }>()
 
 // A few backs stand for the whole hand; the count says how many. A wide fan
 // would spill off the table edge or under the bot's fields.
@@ -131,6 +132,8 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
           :key="index"
           class="field"
           :class="{ empty: !field.bean }"
+          @mouseenter="field.bean && emit('point', field.bean)"
+          @mouseleave="emit('point', null)"
         >
           <template v-if="field.bean && beanTypes[field.bean]">
             <BeanCard
@@ -280,46 +283,48 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
 }
 
 .fields { display: flex; gap: 6px; }
-.field { position: relative; width: 42px; height: 58px; border-radius: 6px; display: grid; place-items: center; }
+.field { position: relative; width: 60px; height: 84px; border-radius: 6px; display: grid; place-items: center; }
+/* Mini cards are too small to read across the table, so bot fields show them bigger. */
+.field :deep(.card.mini) { width: 56px; }
 /* An empty field is just a patch of table, so a quiet table doesn't look busy. */
 .field.empty { background: rgba(30, 14, 4, .18); box-shadow: inset 0 0 0 1px rgba(255, 246, 220, .12); }
 .badge {
   position: absolute;
-  top: -6px;
-  right: -6px;
-  min-width: 20px;
-  height: 20px;
+  top: -8px;
+  right: -8px;
+  min-width: 28px;
+  height: 28px;
   display: grid;
   place-items: center;
   background: var(--accent);
   color: #fff;
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 800;
   line-height: 1;
   font-variant-numeric: tabular-nums;
   border: 2px solid var(--ink);
   border-radius: 999px;
-  padding: 0 4px;
+  padding: 0 5px;
 }
 .worth {
   position: absolute;
-  bottom: -6px;
-  left: -6px;
-  height: 20px;
+  bottom: -8px;
+  left: -8px;
+  height: 28px;
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding: 0 5px 0 2px;
+  gap: 3px;
+  padding: 0 7px 0 3px;
   background: var(--panel);
   color: var(--gold-dark);
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 800;
   line-height: 1;
   font-variant-numeric: tabular-nums;
   border: 2px solid var(--ink);
   border-radius: 999px;
 }
-.worth img { width: 13px; }
+.worth img { width: 18px; }
 
 .bubble {
   position: absolute;
