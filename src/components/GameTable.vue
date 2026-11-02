@@ -1024,6 +1024,8 @@ function ordinal(place: number): string {
   /* Undo the desktop top-middle seat's side-by-side fields; in the strip every seat is alike. */
   .felt :deep(.seat.spot-top) { grid-template-rows: auto auto; grid-auto-flow: row; gap: 4px; }
   .row { flex-direction: column; align-items: center; }
+  /* While trading, the bar sits right under the market it trades with, so both stay in view; your fields follow. */
+  .action:has(.trade) { order: -1; }
   /* Your plate stands beside your fields rather than over them, to save height. */
   .farm-side { grid-auto-flow: column; align-items: center; gap: 8px; }
   .plate-row { flex-direction: column; max-width: 90px; }

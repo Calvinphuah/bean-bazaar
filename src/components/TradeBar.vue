@@ -61,7 +61,7 @@ function less(bean: BeanKey): void {
     data-tour="trade"
     :style="{ '--beans': beans.length }"
   >
-    <div class="section">
+    <div class="section give">
       <h3>You give</h3>
       <div class="chips">
         <button
@@ -91,7 +91,7 @@ function less(bean: BeanKey): void {
       </div>
     </div>
 
-    <div class="section">
+    <div class="section get">
       <h3>{{ bidWith ? `You get from ${bidWith}` : "You get" }}</h3>
       <div class="asks">
         <div
@@ -251,14 +251,17 @@ h3 { font-size: 14px; }
   .partners button { flex: 1; min-width: 0; padding: 5px 6px; }
 }
 @media (orientation: portrait) and (max-width: 1024px) {
-  /* Each row's title sits beside it, so the bar stays short. */
+  /* Kept short so the market above stays in view while you trade: the give row's
+     title sits beside it, and every bean you can ask for fits one full-width row
+     of keyboard-key-sized buttons under its title. */
   .section { grid-template-columns: 62px minmax(0, 1fr); align-items: center; gap: 4px; }
-  h3 { font-size: 12px; line-height: 1.2; }
-  h3 { white-space: nowrap; }
-  /* Beans in two rows, so each one is a full thumb-sized target. */
-  .chips, .asks { grid-template-columns: repeat(calc(var(--beans) / 2), minmax(0, 1fr)); row-gap: 4px; }
-  .chip, .ask img { max-width: 30px; }
-  .chip-button, .ask { min-height: 48px; padding: 4px 2px; justify-self: stretch; }
+  .trade { padding: 6px 8px; gap: 3px; }
+  .section.get { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  h3 { font-size: 12px; line-height: 1.2; white-space: nowrap; }
+  .chips { min-height: 36px; padding-top: 0; }
+  .chip, .ask img { max-width: 28px; }
+  .chip-button, .ask { min-height: 44px; padding: 4px 1px; justify-self: stretch; }
+  .partners button { padding: 4px 6px; }
 }
 /* Sideways the bar is a narrow column: the status gets its own row, and slimmer
    partner buttons keep four on one row. */

@@ -231,6 +231,8 @@ const deckStyle = computed(() => {
 @media (orientation: landscape) and (max-height: 500px) {
   .center { flex-direction: column; gap: 6px; }
   .face-up { min-height: 108px; }
+  /* Above the picked market card's glow, which reaches up to it on a short screen. */
+  .seasons { position: relative; z-index: 2; }
   .pile-cards { width: 44px; }
 }
 </style>
