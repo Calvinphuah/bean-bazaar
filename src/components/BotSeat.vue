@@ -3,7 +3,7 @@ import { computed } from "vue"
 import BeanCard from "./BeanCard.vue"
 import { coinText, coinsFor } from "../rules"
 import { useRollingNumber } from "../useRollingNumber"
-import type { BeanType, TableSnapshot } from "../types"
+import type { BeanKey, BeanType, TableSnapshot } from "../types"
 import type { QuoteAnswer, TradeCounter } from "../api"
 
 const props = defineProps<{
@@ -28,7 +28,8 @@ const props = defineProps<{
   side: "left" | "right" | "top"
 }>()
 
-const emit = defineEmits<{ trade: []; counter: [] }>()
+// point: the bean under the pointer, so the table can show it big; null when it leaves.
+const emit = defineEmits<{ trade: []; counter: []; point: [bean: BeanKey | null] }>()
 
 // A few backs stand for the whole hand; the count says how many. A wide fan
 // would spill off the table edge or under the bot's fields.
@@ -131,6 +132,8 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
           :key="index"
           class="field"
           :class="{ empty: !field.bean }"
+          @mouseenter="field.bean && emit('point', field.bean)"
+          @mouseleave="emit('point', null)"
         >
           <template v-if="field.bean && beanTypes[field.bean]">
             <BeanCard

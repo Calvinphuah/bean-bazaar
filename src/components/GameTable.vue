@@ -56,7 +56,7 @@ const SEAT_SPOTS: Record<number, string[]> = {
 const showLog = ref(false)
 const showPayouts = ref(false)
 const pickedPending = ref<number | null>(null)
-// The bean under the pointer in your hand or the trade bar, shown big with its coin row.
+// The bean under the pointer in your hand, a field or the trade bar, shown big with its coin row.
 const pointedBean = ref<BeanKey | null>(null)
 
 const beanTypes = computed<Record<string, BeanType>>(() =>
@@ -338,6 +338,7 @@ function ordinal(place: number): string {
         :side="seat.spot === 'left' || seat.spot === 'right' ? seat.spot : 'top'"
         @trade="trade.tradeWith(seat.index)"
         @counter="trade.takeCounter(seat.index)"
+        @point="pointedBean = $event"
       />
 
       <div class="middle">
@@ -408,6 +409,8 @@ function ordinal(place: number): string {
               :can-harvest="live && canHarvest(myFields, index)"
               @plant="plantInto(index)"
               @harvest="move({ type: 'harvest', field_index: index })"
+              @mouseenter="pointedBean = field.bean"
+              @mouseleave="pointedBean = null"
             />
             <button
               v-if="canBuyField"
