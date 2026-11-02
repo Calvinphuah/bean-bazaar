@@ -216,7 +216,8 @@ const deckStyle = computed(() => {
 @media (orientation: portrait) and (max-width: 700px), (orientation: landscape) and (max-height: 500px) {
   .center { gap: 16px; }
   .piles { gap: 8px 14px; }
-  .pile { gap: 8px; }
+  /* A full deck's edges hang about 20px below the cards, clear of the label. */
+  .pile { gap: 20px; }
   .pile-cards { width: 56px; }
   .label { font-size: 11px; }
   .count { top: -8px; right: -8px; min-width: 24px; height: 22px; font-size: 11px; }
@@ -228,7 +229,6 @@ const deckStyle = computed(() => {
 /* On its side the phone is short, so the flipped cards sit under the deck. */
 @media (orientation: landscape) and (max-height: 500px) {
   .center { flex-direction: column; gap: 4px; }
-  .pile { gap: 6px; }
   .pile-cards { width: 50px; }
 }
 </style>
