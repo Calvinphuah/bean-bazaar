@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue"
 import BeanCard from "./BeanCard.vue"
-import { setCardDragImage } from "../dragImage"
+import { setCardDragImage, startTouchDrag } from "../dragImage"
 import type { BeanKey, BeanType } from "../types"
 
 // The fan never gets wider than its max width, so a big late-game hand still fits the screen.
@@ -80,6 +80,10 @@ function onDragStart(event: DragEvent): void {
   dragging.value = true
   emit("point", null)
 }
+
+function onPointerDown(event: PointerEvent): void {
+  startTouchDrag(event, () => { dragging.value = true; emit("point", null) }, () => { dragging.value = false })
+}
 </script>
 
 <template>
@@ -138,6 +142,7 @@ function onDragStart(event: DragEvent): void {
                 :class="{ grabbable: index === 0 && canPlantFront }"
                 @dragstart="onDragStart"
                 @dragend="dragging = false"
+                @pointerdown="index === 0 && canPlantFront && onPointerDown($event)"
               >
                 <BeanCard
                   :bean="beanTypes[bean]!"
@@ -183,7 +188,7 @@ function onDragStart(event: DragEvent): void {
 }
 /* The front card can't be planted right now, so its tag stops shouting. */
 .next.waiting { background: var(--panel-dark); color: var(--ink); }
-.grabbable { cursor: grab; }
+.grabbable { cursor: grab; touch-action: none; -webkit-touch-callout: none; }
 .grabbable:active { cursor: grabbing; }
 /* The card left behind fades while its copy is carried to a field. */
 .slot.dragging { opacity: .45; }

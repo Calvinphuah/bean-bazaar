@@ -12,7 +12,7 @@ import TableCenter from "./TableCenter.vue"
 import TableEffects from "./TableEffects.vue"
 import TradeBar from "./TradeBar.vue"
 import TutorialGuide from "./TutorialGuide.vue"
-import { setCardDragImage } from "../dragImage"
+import { setCardDragImage, startTouchDrag } from "../dragImage"
 import { MAX_FIELDS, MAX_HAND_PLANTS, THIRD_FIELD_PRICE, accepts, addressYou, canHarvest, coinText } from "../rules"
 import { useRollingNumber } from "../useRollingNumber"
 import { useTrade } from "../useTrade"
@@ -542,6 +542,7 @@ function ordinal(place: number): string {
                     class="pending-card"
                     draggable="true"
                     @dragstart="pickedPending = group.indexes[0] ?? null; setCardDragImage($event)"
+                    @pointerdown="startTouchDrag($event, () => { pickedPending = group.indexes[0] ?? null }, () => {})"
                   >
                     <span
                       v-if="pendingIndex !== null && group.indexes.includes(pendingIndex)"
@@ -870,7 +871,7 @@ function ordinal(place: number): string {
 .pending-rule { margin: 0; font-size: 12px; color: var(--muted); }
 .pending-body { display: flex; gap: 14px; align-items: center; }
 .pending-cards { flex: none; max-width: 290px; display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 0 10px; }
-.pending-card { position: relative; cursor: grab; }
+.pending-card { position: relative; cursor: grab; touch-action: none; -webkit-touch-callout: none; }
 .now {
   position: absolute;
   bottom: -10px;
@@ -1002,6 +1003,8 @@ function ordinal(place: number): string {
   /* Spread out when it all fits; a tall moment, like a trade, scrolls instead of overlapping. */
   .felt { grid-template-rows: auto auto auto; align-content: space-evenly; gap: 4px; overflow-y: auto; }
   .seats { grid-row: 1; max-width: 100%; display: flex; justify-content: center; gap: 4px; padding: 2px 6px 0; }
+  /* Undo the desktop top-middle seat's side-by-side fields; in the strip every seat is alike. */
+  .felt :deep(.seat.spot-top) { grid-template-rows: auto auto; grid-auto-flow: row; gap: 4px; }
   .row { flex-direction: column; align-items: center; }
   /* Your plate stands beside your fields rather than over them, to save height. */
   .farm-side { grid-auto-flow: column; align-items: center; gap: 8px; }
@@ -1017,6 +1020,7 @@ function ordinal(place: number): string {
   .topbar :deep(.tracker) { justify-self: center; }
   .felt { grid-template-columns: auto auto minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: 10px; padding: 0 12px; }
   .seats { grid-row: 1; grid-column: 1; max-height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+  .felt :deep(.seat.spot-top) { grid-template-rows: none; grid-auto-flow: row; gap: 4px; }
   .middle { grid-row: 1; grid-column: 2; }
   .my-spot { grid-row: 1; grid-column: 3; padding-bottom: 0; }
   .row { align-items: center; }
