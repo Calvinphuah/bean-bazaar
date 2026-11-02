@@ -165,8 +165,8 @@ h3 { font-size: 14px; }
   position: absolute;
   top: -4px;
   left: 2px;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   padding: 0;
   display: grid;
   place-items: center;
