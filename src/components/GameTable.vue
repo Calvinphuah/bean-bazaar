@@ -12,6 +12,7 @@ import TableCenter from "./TableCenter.vue"
 import TableEffects from "./TableEffects.vue"
 import TradeBar from "./TradeBar.vue"
 import TutorialGuide from "./TutorialGuide.vue"
+import { setCardDragImage } from "../dragImage"
 import { MAX_FIELDS, MAX_HAND_PLANTS, THIRD_FIELD_PRICE, accepts, addressYou, canHarvest, coinText } from "../rules"
 import { useRollingNumber } from "../useRollingNumber"
 import { useTrade } from "../useTrade"
@@ -505,7 +506,7 @@ function ordinal(place: number): string {
                     v-if="beanTypes[group.bean]"
                     class="pending-card"
                     draggable="true"
-                    @dragstart="pickedPending = group.indexes[0] ?? null"
+                    @dragstart="pickedPending = group.indexes[0] ?? null; setCardDragImage($event)"
                   >
                     <span
                       v-if="pendingIndex !== null && group.indexes.includes(pendingIndex)"

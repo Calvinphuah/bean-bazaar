@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue"
 import BeanCard from "./BeanCard.vue"
+import { setCardDragImage } from "../dragImage"
 import type { BeanKey, BeanType } from "../types"
 
 const CARD_WIDTH = 132
@@ -70,20 +71,10 @@ function tiltStyle(position: number): Record<string, string> {
 // The front card is being dragged, so its "Plant next" tag and glow step aside.
 const dragging = ref(false)
 
-// Some browsers photograph everything on screen over the card for the drag ghost,
-// tag and glow included, so hand them a plain off-screen copy of the card instead.
 function onDragStart(event: DragEvent): void {
   if (!event.dataTransfer) return
   event.dataTransfer.setData("text/plain", "front")
-  const card = (event.currentTarget as HTMLElement).querySelector<HTMLElement>(".card")
-  if (card) {
-    const ghost = card.cloneNode(true) as HTMLElement
-    ghost.classList.remove("highlighted")
-    ghost.style.cssText = "position: fixed; top: -1000px; left: -1000px;"
-    document.body.append(ghost)
-    event.dataTransfer.setDragImage(ghost, event.offsetX, event.offsetY)
-    requestAnimationFrame(() => ghost.remove())
-  }
+  setCardDragImage(event)
   dragging.value = true
   emit("point", null)
 }
