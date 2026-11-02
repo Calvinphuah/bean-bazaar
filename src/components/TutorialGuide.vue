@@ -58,6 +58,8 @@ function measure(): void {
     spot.value = null
     return
   }
+  // The upright phone table can scroll, so bring the target into view first.
+  element.scrollIntoView({ block: "nearest" })
   const rect = element.getBoundingClientRect()
   const padding = 8
   spot.value = { top: rect.top - padding, left: rect.left - padding, width: rect.width + padding * 2, height: rect.height + padding * 2 }
@@ -68,7 +70,9 @@ const cardStyle = computed(() => {
   if (!spot.value) return { top: "50%", left: "50%", transform: "translate(-50%, -50%)" }
   const below = spot.value.top + spot.value.height + 16
   const top = below + 220 < window.innerHeight ? below : Math.max(16, spot.value.top - 236)
-  const left = Math.min(Math.max(16, spot.value.left), window.innerWidth - 376)
+  // Narrower than 360px on a phone, as the CSS below says.
+  const cardWidth = Math.min(360, window.innerWidth - 32)
+  const left = Math.max(16, Math.min(spot.value.left, window.innerWidth - cardWidth - 16))
   return { top: `${top}px`, left: `${left}px` }
 })
 
@@ -147,7 +151,7 @@ onBeforeUnmount(() => window.removeEventListener("resize", measure))
   transition: all .3s ease;
   pointer-events: none;
 }
-.card { position: absolute; width: 360px; display: grid; gap: 8px; padding: 18px; box-shadow: 0 18px 40px rgba(0, 0, 0, .6); }
+.card { position: absolute; width: min(360px, calc(100vw - 32px)); display: grid; gap: 8px; padding: 18px; box-shadow: 0 18px 40px rgba(0, 0, 0, .6); }
 .count { font-size: 12px; font-weight: 800; color: var(--muted); }
 h2 { font-size: 22px; }
 p { margin: 0; line-height: 1.5; }

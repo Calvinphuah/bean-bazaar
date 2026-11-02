@@ -167,4 +167,29 @@ const canGiveAny = computed(() => props.offer.choices.some((bean) => props.hand.
 .choice:disabled { opacity: .4; filter: grayscale(.6); }
 .give { padding: 3px 10px; border-radius: 999px; background: var(--gold); color: var(--ink); font-size: 12px; font-weight: 800; border: 2px solid var(--ink); }
 .buttons { display: flex; justify-content: center; gap: 10px; }
+
+@media (orientation: portrait) and (max-width: 1024px), (orientation: landscape) and (max-height: 500px) {
+  .offer { gap: 6px; padding: 10px; }
+  .from { gap: 8px; font-size: 16px; }
+  .from img { width: 34px; height: 34px; }
+  .deal { gap: 8px; }
+  .side { font-size: 12px; }
+  .cards { min-height: 0; gap: 4px; flex-wrap: wrap; justify-content: center; }
+  .arrow { font-size: 22px; }
+  .give { padding: 2px 8px; font-size: 11px; }
+  .buttons { flex-wrap: wrap; gap: 6px; }
+  .buttons button { flex: 1; padding: 6px 10px; font-size: 13px; white-space: nowrap; }
+}
+
+/* On its side the offer gets a narrow column, so the cards shrink to keep the deal on one row and the buttons in reach. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .offer { padding: 8px; gap: 4px; }
+  .from { font-size: 14px; }
+  .from .hint { font-size: 10px; }
+  .from img { width: 28px; height: 28px; }
+  .cards { flex-wrap: nowrap; }
+  .cards :deep(.card.small) { width: 52px; }
+  .arrow { font-size: 18px; }
+  .buttons button { padding: 5px 8px; font-size: 12px; }
+}
 </style>

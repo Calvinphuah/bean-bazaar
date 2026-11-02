@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue"
 import BeanCard from "./BeanCard.vue"
-import { setCardDragImage } from "../dragImage"
+import { setCardDragImage, startTouchDrag } from "../dragImage"
 import type { BeanKey, BeanType } from "../types"
 
-const CARD_WIDTH = 132
-// The fan never gets wider than this, so a big late-game hand still fits the screen.
-const MAX_FAN_WIDTH = 860
-const MAX_STEP = 96
+// The fan never gets wider than its max width, so a big late-game hand still fits the screen.
+const FAN = { cardWidth: 132, maxWidth: 860, maxStep: 96 }
+// Phone layouts draw smaller cards (see BeanCard) in a narrower fan.
+const COMPACT_FAN = { cardWidth: 76, maxWidth: 340, maxStep: 54 }
 const FRONT_SIDE_KEY = "bean-bazaar-front-on-right"
 
 const props = defineProps<{
@@ -18,6 +18,7 @@ const props = defineProps<{
   // Cards can be picked for a trade right now.
   pickable: boolean
   picked: number[]
+  compact: boolean
 }>()
 
 // point: the bean under the pointer, so the table can show it big; null when it leaves.
@@ -49,8 +50,9 @@ const shown = computed(() => {
   return frontOnRight.value ? cards.reverse() : cards
 })
 
+const fan = computed(() => (props.compact ? COMPACT_FAN : FAN))
 // How far apart neighbouring cards sit: wide for a small hand, tighter as it grows.
-const step = computed(() => Math.min(MAX_STEP, (MAX_FAN_WIDTH - CARD_WIDTH) / Math.max(props.hand.length - 1, 1)))
+const step = computed(() => Math.min(fan.value.maxStep, (fan.value.maxWidth - fan.value.cardWidth) / Math.max(props.hand.length - 1, 1)))
 const tilt = computed(() => Math.min(3, 30 / Math.max(props.hand.length, 1)))
 
 // Spread the cards in a gentle arc, like a hand held at a card table.
@@ -58,7 +60,7 @@ const tilt = computed(() => Math.min(3, 30 / Math.max(props.hand.length, 1)))
 // order flips wipes any transform on the slot itself.
 function slotStyle(position: number): Record<string, string> {
   return {
-    marginRight: position === props.hand.length - 1 ? "0" : `${step.value - CARD_WIDTH}px`,
+    marginRight: position === props.hand.length - 1 ? "0" : `${step.value - fan.value.cardWidth}px`,
     zIndex: String(position + 1),
   }
 }
@@ -78,6 +80,19 @@ function onDragStart(event: DragEvent): void {
   dragging.value = true
   emit("point", null)
 }
+
+// A finger can't hover, so a tap lifts a card out of the fan to read it, and a second tap drops it.
+const peeked = ref<number | null>(null)
+watch(() => props.hand.length, () => { peeked.value = null })
+
+function peek(event: PointerEvent, position: number): void {
+  if (event.pointerType === "mouse" || props.pickable) return
+  peeked.value = peeked.value === position ? null : position
+}
+
+function onPointerDown(event: PointerEvent): void {
+  startTouchDrag(event, () => { dragging.value = true; emit("point", null) }, () => { dragging.value = false })
+}
 </script>
 
 <template>
@@ -89,6 +104,7 @@ function onDragStart(event: DragEvent): void {
       <button
         v-if="hand.length > 1"
         class="swap small secondary"
+        :class="{ 'front-right': frontOnRight }"
         :title="frontOnRight ? 'Put the card to plant next on the left' : 'Put the card to plant next on the right'"
         @click="frontOnRight = !frontOnRight"
       >
@@ -102,8 +118,9 @@ function onDragStart(event: DragEvent): void {
           <div
             v-if="beanTypes[bean]"
             class="slot"
-            :class="{ front: index === 0, dragging: index === 0 && dragging }"
+            :class="{ front: index === 0, dragging: index === 0 && dragging, peek: peeked === position && !dragging }"
             :style="slotStyle(position)"
+            @pointerdown="peek($event, position)"
             @mouseenter="!dragging && emit('point', bean)"
             @mouseleave="emit('point', null)"
           >
@@ -135,6 +152,7 @@ function onDragStart(event: DragEvent): void {
                 :class="{ grabbable: index === 0 && canPlantFront }"
                 @dragstart="onDragStart"
                 @dragend="dragging = false"
+                @pointerdown="index === 0 && canPlantFront && onPointerDown($event)"
               >
                 <BeanCard
                   :bean="beanTypes[bean]!"
@@ -161,7 +179,9 @@ function onDragStart(event: DragEvent): void {
 /* Clear of the outermost card, which tilts out past the fan's edge. */
 .swap { position: absolute; right: calc(100% + 44px); bottom: 74px; z-index: 60; white-space: nowrap; }
 .slot { position: relative; transition: transform .18s ease, margin .2s ease; }
-.slot:hover { transform: translateY(-46px); z-index: 50 !important; }
+@media (hover: hover) { .slot:hover { transform: translateY(-46px); z-index: 50 !important; } }
+/* Above the swap button too, since a lifted card is being read. */
+.slot.peek { transform: translateY(-34px); z-index: 70 !important; }
 .tilt { position: relative; transform-origin: 50% 130%; transition: transform .2s ease; }
 .next {
   position: absolute;
@@ -180,10 +200,26 @@ function onDragStart(event: DragEvent): void {
 }
 /* The front card can't be planted right now, so its tag stops shouting. */
 .next.waiting { background: var(--panel-dark); color: var(--ink); }
-.grabbable { cursor: grab; }
+.grabbable { cursor: grab; touch-action: none; -webkit-touch-callout: none; }
 .grabbable:active { cursor: grabbing; }
 /* The card left behind fades while its copy is carried to a field. */
 .slot.dragging { opacity: .45; }
 .slot.dragging .next { visibility: hidden; }
 .empty { font-size: 13px; color: #fff6dc; padding-bottom: 80px; }
+
+/* Phones: smaller cards, and the swap button tucked above the fan's left end. */
+@media (orientation: portrait) and (max-width: 1024px), (orientation: landscape) and (max-height: 500px) {
+  /* The whole card shows, corner number included, clear of the home bar. */
+  .hand { padding: 24px 8px max(14px, env(safe-area-inset-bottom)); margin-bottom: 0; min-height: 100px; }
+  /* At the end away from the front card, clear of its Plant next tag. */
+  .swap { right: 0; bottom: calc(100% - 4px); padding: 3px 10px; font-size: 12px; }
+  .next { font-size: 12px; }
+  .swap.front-right { right: auto; left: 0; }
+  .empty { padding-bottom: 50px; }
+}
+/* Sideways the fan has room on both sides, so the swap button sits beside it, clear of the market above. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .swap { right: auto; left: calc(100% + 10px); bottom: 24px; }
+  .swap.front-right { left: auto; right: calc(100% + 10px); }
+}
 </style>

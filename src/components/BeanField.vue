@@ -173,4 +173,18 @@ function onDrop(): void {
 .info { display: grid; justify-items: center; text-align: center; font-size: 11px; min-height: 30px; color: #fff6dc; text-shadow: 0 1px 0 rgba(0, 0, 0, .5); }
 .info strong { font-size: 13px; color: #ffe27a; }
 .actions { margin-top: auto; display: flex; flex-direction: column; gap: 5px; }
+
+@media (orientation: portrait) and (max-width: 1024px), (orientation: landscape) and (max-height: 500px) {
+  .field { width: 88px; min-height: 148px; padding: 4px; gap: 4px; }
+  .placeholder { width: 64px; font-size: 13px; }
+  .info { min-height: 26px; font-size: 12px; line-height: 1.2; }
+  .info strong { font-size: 13px; }
+  .badge { min-width: 24px; height: 24px; font-size: 13px; }
+  .actions button { padding: 6px 10px; font-size: 13px; white-space: nowrap; }
+}
+/* A phone on its side is short, so the next-payout line stays on one line. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .info { min-height: 0; font-size: 11px; white-space: nowrap; }
+  .actions button { padding: 4px 10px; }
+}
 </style>

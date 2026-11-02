@@ -21,6 +21,8 @@
 body {
   margin: 0;
   min-height: 100vh;
+  /* The table is pinned in place, so a swipe never pulls the page to reload it. */
+  overscroll-behavior: none;
   background:
     radial-gradient(ellipse at 50% 45%, rgba(255, 214, 150, .28), transparent 65%),
     radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(30, 14, 4, .55)),
@@ -47,8 +49,11 @@ button {
   color: var(--ink);
   box-shadow: 0 2px 0 var(--ink);
   transition: transform .1s ease;
+  /* No double-tap zoom delay and no grey flash on a tap. */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
-button:hover:not(:disabled) { transform: translateY(-1px); }
+@media (hover: hover) { button:hover:not(:disabled) { transform: translateY(-1px); } }
 button:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
 button:disabled { opacity: .45; cursor: not-allowed; }
 button.secondary { background: var(--panel); }
@@ -61,6 +66,7 @@ button.big { font-size: 17px; padding: 9px 22px; }
 .card-button {
   all: unset;
   cursor: pointer;
+  touch-action: manipulation;
   border-radius: 10px;
 }
 .card-button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }

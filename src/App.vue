@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue"
+import { useRegisterSW } from "virtual:pwa-register/vue"
 import GameTable from "./components/GameTable.vue"
 import StartScreen from "./components/StartScreen.vue"
 import TutorialGuide from "./components/TutorialGuide.vue"
@@ -13,6 +14,8 @@ const ERROR_MS = 4000
 const { game, table, error, busy, replaying, start, move, resume, leave, skipReplay } = useGame()
 const sound = useSound()
 const showTutorial = ref(false)
+// A new version is downloaded in the background; it only takes over when the player says so.
+const { needRefresh, updateServiceWorker } = useRegisterSW()
 let errorTimer: ReturnType<typeof setTimeout> | null = null
 
 // localStorage can throw in private windows; then the tutorial just shows each time.
@@ -69,6 +72,28 @@ onMounted(resume)
     </p>
   </Transition>
 
+  <Transition name="toast">
+    <div
+      v-if="needRefresh"
+      class="toast update"
+      role="status"
+    >
+      A new version is ready.
+      <button
+        class="small"
+        @click="updateServiceWorker()"
+      >
+        Reload
+      </button>
+      <button
+        class="small secondary"
+        @click="needRefresh = false"
+      >
+        Later
+      </button>
+    </div>
+  </Transition>
+
   <GameTable
     v-if="game && table"
     :game="game"
@@ -116,6 +141,7 @@ onMounted(resume)
   box-shadow: 0 10px 24px rgba(0, 0, 0, .5);
   cursor: pointer;
 }
+.toast.update { top: auto; bottom: calc(14px + env(safe-area-inset-bottom)); display: flex; gap: 10px; align-items: center; cursor: default; }
 .toast-enter-active, .toast-leave-active { transition: all .2s ease; }
 .toast-enter-from, .toast-leave-to { opacity: 0; transform: translate(-50%, -10px); }
 </style>

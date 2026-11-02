@@ -61,7 +61,7 @@ function less(bean: BeanKey): void {
     data-tour="trade"
     :style="{ '--beans': beans.length }"
   >
-    <div class="section">
+    <div class="section give">
       <h3>You give</h3>
       <div class="chips">
         <button
@@ -91,7 +91,7 @@ function less(bean: BeanKey): void {
       </div>
     </div>
 
-    <div class="section">
+    <div class="section get">
       <h3>{{ bidWith ? `You get from ${bidWith}` : "You get" }}</h3>
       <div class="asks">
         <div
@@ -231,4 +231,43 @@ h3 { font-size: 14px; }
 .status { margin: 0; flex: 1; font-size: 12px; font-weight: 800; line-height: 1.3; }
 .partners { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 .buttons { display: flex; gap: 6px; flex: none; }
+
+/* Phones: the bar fills the width it gets, and each bean column shrinks to fit. */
+@media (orientation: portrait) and (max-width: 1024px), (orientation: landscape) and (max-height: 500px) {
+  .trade { width: 100%; padding: 8px; gap: 4px; }
+  h3 { font-size: 13px; }
+  .chips { min-height: 44px; }
+  .chips, .asks { grid-template-columns: repeat(var(--beans), minmax(0, 1fr)); }
+  .chip, .ask img { width: 100%; max-width: 26px; }
+  .ask { padding: 3px 1px; }
+  .ask-name { display: none; }
+  .ask-count { right: 0; font-size: 10px; padding: 0 4px; }
+  .less { width: 22px; height: 22px; top: -6px; left: -2px; }
+  .footer { flex-wrap: wrap; justify-content: flex-end; }
+  .status { font-size: 12px; }
+  /* Up to four partners stay on one row above the buttons instead of wrapping under them. */
+  .status:has(.partners) { flex-basis: 100%; }
+  .partners { flex-wrap: nowrap; }
+  .partners button { flex: 1; min-width: 0; padding: 5px 6px; }
+}
+@media (orientation: portrait) and (max-width: 1024px) {
+  /* Kept short so the market above stays in view while you trade: the give row's
+     title sits beside it, and every bean you can ask for fits one full-width row
+     of keyboard-key-sized buttons under its title. */
+  .section { grid-template-columns: 62px minmax(0, 1fr); align-items: center; gap: 4px; }
+  .trade { padding: 6px 8px; gap: 3px; }
+  .section.get { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  h3 { font-size: 12px; line-height: 1.2; white-space: nowrap; }
+  .chips { min-height: 36px; padding-top: 0; }
+  .chip, .ask img { max-width: 28px; }
+  .chip-button, .ask { min-height: 44px; padding: 4px 1px; justify-self: stretch; }
+  .partners button { padding: 4px 6px; }
+}
+/* Sideways the bar is a narrow column: the status gets its own row, and slimmer
+   partner buttons keep four on one row. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .status { flex-basis: 100%; }
+  .partners button { padding: 5px 3px; }
+  .chips { min-height: 36px; }
+}
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, toRef, watch } from "vue"
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRef, watch } from "vue"
 import BeanCard from "./BeanCard.vue"
 import BrandMark from "./BrandMark.vue"
 import BeanField from "./BeanField.vue"
@@ -12,7 +12,7 @@ import TableCenter from "./TableCenter.vue"
 import TableEffects from "./TableEffects.vue"
 import TradeBar from "./TradeBar.vue"
 import TutorialGuide from "./TutorialGuide.vue"
-import { setCardDragImage } from "../dragImage"
+import { setCardDragImage, startTouchDrag } from "../dragImage"
 import { MAX_FIELDS, MAX_HAND_PLANTS, THIRD_FIELD_PRICE, accepts, addressYou, canHarvest, coinText } from "../rules"
 import { useRollingNumber } from "../useRollingNumber"
 import { useTrade } from "../useTrade"
@@ -30,16 +30,30 @@ const props = defineProps<{
 
 const emit = defineEmits<{ leave: []; skip: []; tutorialDone: []; tutorial: []; toggleSound: [] }>()
 
-// The table is laid out for this size; any other window gets the whole table
-// scaled to fit, never a squashed layout.
-const TABLE_WIDTH = 1200
-const TABLE_HEIGHT = 820
+// Each layout is drawn for one size; a smaller window gets it scaled down to
+// fit, never squashed. Phones, and tablets held upright, get their own layouts
+// (same queries as the CSS).
+const LAYOUTS = {
+  table: { width: 1200, height: 820, query: "" },
+  portrait: { width: 390, height: 730, query: "(orientation: portrait) and (max-width: 1024px)" },
+  landscape: { width: 900, height: 420, query: "(orientation: landscape) and (max-height: 500px)" },
+}
+type Layout = keyof typeof LAYOUTS
+const layout = ref<Layout>("table")
+const compact = computed(() => layout.value !== "table")
 // Past 1.5x the 240px card art starts to look soft.
 const MAX_SCALE = 1.5
+// Upright, the table never shrinks below this share of the screen width.
+const UPRIGHT_MIN_FILL = 0.85
 const scale = ref(1)
 
 function fitTable(): void {
-  scale.value = Math.min(MAX_SCALE, window.innerWidth / TABLE_WIDTH, window.innerHeight / TABLE_HEIGHT)
+  layout.value = (["portrait", "landscape"] as const).find((name) => window.matchMedia(LAYOUTS[name].query).matches) ?? "table"
+  const size = LAYOUTS[layout.value]
+  const fitWidth = window.innerWidth / size.width
+  // The upright felt scrolls, so a short screen trades a little scrolling for readable text.
+  const fitHeight = Math.max(window.innerHeight / size.height, layout.value === "portrait" ? fitWidth * UPRIGHT_MIN_FILL : 0)
+  scale.value = Math.min(MAX_SCALE, fitWidth, fitHeight)
 }
 
 onMounted(() => {
@@ -56,6 +70,7 @@ const SEAT_SPOTS: Record<number, string[]> = {
 }
 
 const showLog = ref(false)
+const showTools = ref(false)
 const showPayouts = ref(false)
 const pickedPending = ref<number | null>(null)
 // The bean under the pointer in your hand, a field, the market or the trade bar, shown big with its coin row.
@@ -144,6 +159,14 @@ const canAcceptOffer = computed(() => {
 })
 
 const trade = useTrade(toRef(props, "game"), isDealing, isBidding, props.move)
+// On a phone the felt scrolls, so a bot's offer, the trade bar's buttons or your
+// traded beans could open below the fold; bring the panel into view so its buttons can be reached.
+const actionPanel = ref<HTMLElement | null>(null)
+watch([offer, isDealing, () => trade.acceptors.value.length, () => me.value?.pending.length], async () => {
+  if (!compact.value) return
+  await nextTick()
+  actionPanel.value?.scrollIntoView({ block: "nearest", behavior: "smooth" })
+})
 
 watch(() => me.value?.pending.length, () => { pickedPending.value = null })
 
@@ -281,7 +304,19 @@ function ordinal(place: number): string {
         :phase="table.phase"
         :turn-label="turnLabel"
       />
-      <div class="tools">
+      <button
+        class="tool more"
+        aria-label="Menu"
+        :aria-expanded="showTools"
+        @click="showTools = !showTools"
+      >
+        ☰
+      </button>
+      <div
+        class="tools"
+        :class="{ open: showTools }"
+        @click="showTools = false"
+      >
         <button
           class="tool"
           :aria-pressed="soundOn"
@@ -322,28 +357,31 @@ function ordinal(place: number): string {
       class="felt"
       :class="`season-${Math.min(table.deck.run_outs + 1, 3)}`"
     >
-      <BotSeat
-        v-for="seat in seats"
-        :key="seat.index"
-        data-tour="seats"
-        :seat-index="seat.index"
-        :class="`spot-${seat.spot}`"
-        :name="nameOf(seat.index)"
-        :avatar="seat.avatar"
-        :seat="table.players[seat.index]!"
-        :bean-types="beanTypes"
-        :active="table.active_index === seat.index && !game.over"
-        :winner="game.over && game.winners.includes(seat.index)"
-        :bubble="bubbleFor(seat.index)"
-        :answer="isDealing ? trade.answers.value[seat.index] ?? null : null"
-        :counter="isDealing ? trade.counters.value[seat.index] ?? null : null"
-        :can-trade-with="isDealing && trade.answers.value[seat.index] === 'accept'"
-        :gift="trade.isGift.value"
-        :side="seat.spot === 'left' || seat.spot === 'right' ? seat.spot : 'top'"
-        @trade="trade.tradeWith(seat.index)"
-        @counter="trade.takeCounter(seat.index)"
-        @point="pointedBean = $event"
-      />
+      <!-- Just a box for the phone layouts, which line the seats up in a strip. -->
+      <div class="seats">
+        <BotSeat
+          v-for="seat in seats"
+          :key="seat.index"
+          data-tour="seats"
+          :seat-index="seat.index"
+          :class="`spot-${seat.spot}`"
+          :name="nameOf(seat.index)"
+          :avatar="seat.avatar"
+          :seat="table.players[seat.index]!"
+          :bean-types="beanTypes"
+          :active="table.active_index === seat.index && !game.over"
+          :winner="game.over && game.winners.includes(seat.index)"
+          :bubble="bubbleFor(seat.index)"
+          :answer="isDealing ? trade.answers.value[seat.index] ?? null : null"
+          :counter="isDealing ? trade.counters.value[seat.index] ?? null : null"
+          :can-trade-with="!compact && isDealing && trade.answers.value[seat.index] === 'accept'"
+          :gift="trade.isGift.value"
+          :side="!compact && (seat.spot === 'left' || seat.spot === 'right') ? seat.spot : 'top'"
+          @trade="trade.tradeWith(seat.index)"
+          @counter="trade.takeCounter(seat.index)"
+          @point="pointedBean = $event"
+        />
+      </div>
 
       <div class="middle">
         <TableCenter
@@ -427,7 +465,10 @@ function ordinal(place: number): string {
           </div>
         </div>
 
-        <div class="action">
+        <div
+          ref="actionPanel"
+          class="action"
+        >
           <!-- Beside your fields, not over them, so you can see what fits before answering. -->
           <OfferCard
             v-if="offer"
@@ -518,6 +559,7 @@ function ordinal(place: number): string {
                     class="pending-card"
                     draggable="true"
                     @dragstart="pickedPending = group.indexes[0] ?? null; setCardDragImage($event)"
+                    @pointerdown="startTouchDrag($event, () => { pickedPending = group.indexes[0] ?? null }, () => {})"
                   >
                     <span
                       v-if="pendingIndex !== null && group.indexes.includes(pendingIndex)"
@@ -558,6 +600,7 @@ function ordinal(place: number): string {
         :can-plant-front="canPlantFromHand"
         :pickable="isDealing"
         :picked="trade.pickedHand.value"
+        :compact="compact"
         @pick="trade.toggleHand"
         @point="pointedBean = $event"
       />
@@ -702,7 +745,7 @@ function ordinal(place: number): string {
       />
     </Teleport>
 
-    <!-- The table needs a wide screen; an upright phone is asked to turn. -->
+    <!-- An upright screen too small even for the phone layout is asked to turn. -->
     <Teleport to="body">
       <div
         class="turn-phone"
@@ -713,7 +756,7 @@ function ordinal(place: number): string {
           aria-hidden="true"
         >📱</span>
         <strong>Turn your phone sideways</strong>
-        <p>The bazaar needs a wide table.</p>
+        <p>This screen is too small for the upright table.</p>
       </div>
     </Teleport>
   </div>
@@ -723,10 +766,10 @@ function ordinal(place: number): string {
 /* The whole screen is the table: bots along the top, the market in the middle,
    your farm and hand along the bottom, with the hand running off the edge. */
 /* Pinned to the window: a game table never scrolls. */
-.game { position: fixed; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(520px, 1fr) auto; overflow: clip; }
+.game { position: fixed; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(520px, 1fr) auto; overflow: clip; padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left); }
 
 .turn-phone { display: none; }
-@media (orientation: portrait) and (max-width: 600px) {
+@media (orientation: portrait) and (max-width: 319px), (orientation: portrait) and (max-height: 499px) {
   .turn-phone {
     position: fixed;
     inset: 0;
@@ -753,6 +796,7 @@ function ordinal(place: number): string {
 .tool:hover { background: rgba(30, 14, 4, .25); }
 .tool[aria-pressed="true"] { background: rgba(30, 14, 4, .35); }
 .tool:focus-visible { outline: 3px solid var(--gold); outline-offset: 1px; }
+.more { display: none; }
 
 /* Three bands: room for the bots along the top, the market, then your farm. */
 .felt { position: relative; display: grid; grid-template-rows: 124px minmax(0, 1fr) auto; justify-items: center; align-items: center; }
@@ -774,6 +818,7 @@ function ordinal(place: number): string {
   from { transform: translate(-6%, -3%) scale(1); }
   to { transform: translate(6%, 4%) scale(1.12); }
 }
+.seats { display: contents; }
 .felt :deep(.seat) { position: absolute; z-index: 2; }
 /* Seats sit on an arc around the market: sides low on the edges, the rest along the top. */
 .felt :deep(.spot-left) { left: 2.5%; top: 150px; }
@@ -843,7 +888,7 @@ function ordinal(place: number): string {
 .pending-rule { margin: 0; font-size: 12px; color: var(--muted); }
 .pending-body { display: flex; gap: 14px; align-items: center; }
 .pending-cards { flex: none; max-width: 290px; display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 0 10px; }
-.pending-card { position: relative; cursor: grab; }
+.pending-card { position: relative; cursor: grab; touch-action: none; -webkit-touch-callout: none; }
 .now {
   position: absolute;
   bottom: -10px;
@@ -935,6 +980,75 @@ function ordinal(place: number): string {
 @media (prefers-reduced-motion: reduce) {
   .confetti { display: none; }
   .result.won { animation: none; }
+}
+
+/* The hover preview follows a mouse; a tap would leave it stuck over the table. */
+@media (hover: none) { .preview { display: none; } }
+
+/* Phones: the same table reflowed for a small screen, with tools behind a menu. */
+@media (orientation: portrait) and (max-width: 1024px), (orientation: landscape) and (max-height: 500px) {
+  .game { grid-template-rows: auto minmax(0, 1fr) auto; }
+  .topbar { gap: 8px; padding: 4px 10px; }
+  .more { display: block; min-width: 44px; min-height: 40px; font-size: 20px; }
+  .tools { display: none; position: absolute; top: 100%; right: 8px; flex-direction: column; padding: 6px; border-radius: 12px; border: 2px solid var(--ink); background: var(--panel); box-shadow: 0 10px 24px rgba(0, 0, 0, .4); }
+  .tools.open { display: flex; }
+  .tools .tool { min-height: 40px; color: var(--ink); text-shadow: none; text-align: left; }
+  .tools .tool:hover, .tools .tool[aria-pressed="true"] { background: var(--panel-dark); }
+  .felt :deep(.seat) { position: relative; inset: auto; transform: none; }
+  .row { gap: 10px; }
+  .farm { gap: 8px; }
+  .buy-field { width: 80px; min-height: 148px; font-size: 13px; }
+  .my-plate { padding: 3px 12px 3px 3px; white-space: nowrap; }
+  .my-plate img { width: 30px; height: 30px; }
+  .my-plate strong { font-size: 15px; }
+  .action { min-width: 0; }
+  .instruction { padding: 7px 12px; border-radius: 14px; font-size: 13px; }
+  .pending { width: 100%; padding: 8px 10px; gap: 4px; }
+  .pending-cards { flex: 1; max-width: none; }
+  .left, .pending-rule { font-size: 13px; }
+  .me { padding: 0 8px; }
+  .preview { display: none; }
+  .log-spot { right: 8px; top: 48px; }
+  .result { padding: 18px 16px 16px; gap: 10px; }
+  .result h2 { font-size: 24px; }
+}
+
+/* An upright phone: the bots in a strip along the top, the market, then your
+   farm over what to do, with the hand along the bottom. */
+@media (orientation: portrait) and (max-width: 1024px) {
+  .topbar { grid-template-columns: minmax(0, 1fr) auto; }
+  .topbar :deep(.brand) { display: none; }
+  /* Spread out when it all fits; a tall moment, like a trade, scrolls instead of overlapping. */
+  .felt { grid-template-rows: auto auto auto; align-content: space-evenly; gap: 4px; overflow-y: auto; }
+  .seats { grid-row: 1; max-width: 100%; display: flex; justify-content: center; gap: 4px; padding: 2px 6px 0; }
+  /* Undo the desktop top-middle seat's side-by-side fields; in the strip every seat is alike. */
+  .felt :deep(.seat.spot-top) { grid-template-rows: auto auto; grid-auto-flow: row; gap: 4px; }
+  .row { flex-direction: column; align-items: center; }
+  /* While trading, the bar sits right under the market it trades with, so both stay in view; your fields follow. */
+  .action:has(.trade) { order: -1; }
+  /* Your plate stands beside your fields rather than over them, to save height. */
+  .farm-side { grid-auto-flow: column; align-items: center; gap: 8px; }
+  .plate-row { flex-direction: column; max-width: 90px; }
+  .my-plate { flex-direction: column; gap: 0; padding: 6px 10px; border-radius: 14px; text-align: center; }
+  .action { width: 100%; padding: 0 10px; justify-items: center; }
+}
+
+/* A phone on its side: the bots down the left, the market, then your farm
+   beside what to do, with the hand along the bottom. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .topbar { grid-template-columns: auto minmax(0, 1fr) auto; padding-top: 2px; padding-bottom: 2px; }
+  .topbar :deep(.tracker) { justify-self: center; }
+  .felt { grid-template-columns: auto auto minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: 10px; padding: 0 12px; }
+  .seats { grid-row: 1; grid-column: 1; max-height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+  .felt :deep(.seat.spot-top) { grid-template-rows: none; grid-auto-flow: row; gap: 4px; }
+  .middle { grid-row: 1; grid-column: 2; }
+  .my-spot { grid-row: 1; grid-column: 3; padding-bottom: 0; }
+  .row { align-items: center; }
+  .action { width: 272px; }
+  /* Your column is the tallest sideways, so the leftover-cards note stays one plate high. */
+  .farm-side { gap: 4px; }
+  .locked { flex-wrap: nowrap; padding: 3px 8px; }
+  .locked :deep(.card.mini) { width: 22px; padding: 1px; border-radius: 3px; }
 }
 
 .slide-enter-active, .slide-leave-active { transition: all .2s ease; }
