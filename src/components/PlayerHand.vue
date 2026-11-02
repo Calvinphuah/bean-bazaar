@@ -7,7 +7,7 @@ import type { BeanKey, BeanType } from "../types"
 // The fan never gets wider than its max width, so a big late-game hand still fits the screen.
 const FAN = { cardWidth: 132, maxWidth: 860, maxStep: 96 }
 // Phone layouts draw smaller cards (see BeanCard) in a narrower fan.
-const COMPACT_FAN = { cardWidth: 96, maxWidth: 370, maxStep: 60 }
+const COMPACT_FAN = { cardWidth: 76, maxWidth: 340, maxStep: 54 }
 const FRONT_SIDE_KEY = "bean-bazaar-front-on-right"
 
 const props = defineProps<{
@@ -81,6 +81,15 @@ function onDragStart(event: DragEvent): void {
   emit("point", null)
 }
 
+// A finger can't hover, so a tap lifts a card out of the fan to read it, and a second tap drops it.
+const peeked = ref<number | null>(null)
+watch(() => props.hand.length, () => { peeked.value = null })
+
+function peek(event: PointerEvent, position: number): void {
+  if (event.pointerType === "mouse" || props.pickable) return
+  peeked.value = peeked.value === position ? null : position
+}
+
 function onPointerDown(event: PointerEvent): void {
   startTouchDrag(event, () => { dragging.value = true; emit("point", null) }, () => { dragging.value = false })
 }
@@ -109,8 +118,9 @@ function onPointerDown(event: PointerEvent): void {
           <div
             v-if="beanTypes[bean]"
             class="slot"
-            :class="{ front: index === 0, dragging: index === 0 && dragging }"
+            :class="{ front: index === 0, dragging: index === 0 && dragging, peek: peeked === position && !dragging }"
             :style="slotStyle(position)"
+            @pointerdown="peek($event, position)"
             @mouseenter="!dragging && emit('point', bean)"
             @mouseleave="emit('point', null)"
           >
@@ -170,6 +180,8 @@ function onPointerDown(event: PointerEvent): void {
 .swap { position: absolute; right: calc(100% + 44px); bottom: 74px; z-index: 60; white-space: nowrap; }
 .slot { position: relative; transition: transform .18s ease, margin .2s ease; }
 @media (hover: hover) { .slot:hover { transform: translateY(-46px); z-index: 50 !important; } }
+/* Above the swap button too, since a lifted card is being read. */
+.slot.peek { transform: translateY(-34px); z-index: 70 !important; }
 .tilt { position: relative; transform-origin: 50% 130%; transition: transform .2s ease; }
 .next {
   position: absolute;
@@ -196,10 +208,12 @@ function onPointerDown(event: PointerEvent): void {
 .empty { font-size: 13px; color: #fff6dc; padding-bottom: 80px; }
 
 /* Phones: smaller cards, and the swap button tucked above the fan's left end. */
-@media (orientation: portrait) and (max-width: 700px), (orientation: landscape) and (max-height: 500px) {
-  .hand { padding: 26px 8px 0; margin-bottom: -44px; min-height: 100px; }
+@media (orientation: portrait) and (max-width: 1024px), (orientation: landscape) and (max-height: 500px) {
+  /* The whole card shows, corner number included, clear of the home bar. */
+  .hand { padding: 24px 8px max(14px, env(safe-area-inset-bottom)); margin-bottom: 0; min-height: 100px; }
   /* At the end away from the front card, clear of its Plant next tag. */
-  .swap { right: 0; bottom: calc(100% - 4px); padding: 3px 10px; font-size: 11px; }
+  .swap { right: 0; bottom: calc(100% - 4px); padding: 3px 10px; font-size: 12px; }
+  .next { font-size: 12px; }
   .swap.front-right { right: auto; left: 0; }
   .empty { padding-bottom: 50px; }
 }

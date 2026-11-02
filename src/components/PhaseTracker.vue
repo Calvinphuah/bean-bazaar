@@ -73,15 +73,17 @@ li.done .dot { background: var(--ok); color: #fff; }
 li.current { color: var(--ink); background: var(--panel); font-weight: 800; }
 li.current .dot { background: var(--accent); color: #fff; }
 
-@media (orientation: portrait) and (max-width: 700px), (orientation: landscape) and (max-height: 500px) {
+@media (orientation: portrait) and (max-width: 1024px), (orientation: landscape) and (max-height: 500px) {
   .tracker { gap: 8px; flex-wrap: nowrap; }
-  .turn { padding: 2px 10px; font-size: 12px; white-space: nowrap; }
+  .turn { padding: 2px 10px; font-size: 13px; white-space: nowrap; }
   ol { gap: 4px; flex-wrap: nowrap; }
-  li { padding: 2px 8px 2px 2px; font-size: 12px; white-space: nowrap; }
+  li { padding: 2px 8px 2px 2px; font-size: 13px; white-space: nowrap; }
+  .dot { font-size: 12px; }
 }
-/* An upright phone has room for the numbers only, plus the step you are on. */
-@media (orientation: portrait) and (max-width: 700px) {
-  li:not(.current) { padding: 2px; }
-  li:not(.current) .label { display: none; }
+/* An upright phone names only the step you are on and the one after it; the rest are numbers. */
+@media (orientation: portrait) and (max-width: 1024px) {
+  li:not(.current, .current + li) { padding: 2px; }
+  li:not(.current, .current + li) .label { display: none; }
+  .current + li { font-size: 12px; }
 }
 </style>

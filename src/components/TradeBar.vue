@@ -233,9 +233,9 @@ h3 { font-size: 14px; }
 .buttons { display: flex; gap: 6px; flex: none; }
 
 /* Phones: the bar fills the width it gets, and each bean column shrinks to fit. */
-@media (orientation: portrait) and (max-width: 700px), (orientation: landscape) and (max-height: 500px) {
+@media (orientation: portrait) and (max-width: 1024px), (orientation: landscape) and (max-height: 500px) {
   .trade { width: 100%; padding: 8px; gap: 4px; }
-  h3 { font-size: 12px; }
+  h3 { font-size: 13px; }
   .chips { min-height: 44px; }
   .chips, .asks { grid-template-columns: repeat(var(--beans), minmax(0, 1fr)); }
   .chip, .ask img { width: 100%; max-width: 26px; }
@@ -243,12 +243,25 @@ h3 { font-size: 14px; }
   .ask-name { display: none; }
   .ask-count { right: 0; font-size: 10px; padding: 0 4px; }
   .less { width: 22px; height: 22px; top: -6px; left: -2px; }
-  .footer { flex-wrap: wrap; }
-  .status { font-size: 11px; }
+  .footer { flex-wrap: wrap; justify-content: flex-end; }
+  .status { font-size: 12px; }
+  /* Up to four partners stay on one row above the buttons instead of wrapping under them. */
+  .status:has(.partners) { flex-basis: 100%; }
+  .partners { flex-wrap: nowrap; }
+  .partners button { flex: 1; min-width: 0; padding: 5px 6px; }
 }
-@media (orientation: portrait) and (max-width: 700px) {
+@media (orientation: portrait) and (max-width: 1024px) {
   /* Each row's title sits beside it, so the bar stays short. */
-  .section { grid-template-columns: 50px minmax(0, 1fr); align-items: center; gap: 4px; }
-  h3 { font-size: 11px; line-height: 1.2; }
+  .section { grid-template-columns: 62px minmax(0, 1fr); align-items: center; gap: 4px; }
+  h3 { font-size: 12px; line-height: 1.2; }
+  h3 { white-space: nowrap; }
+  /* Beans in two rows, so each one is a full thumb-sized target. */
+  .chips, .asks { grid-template-columns: repeat(calc(var(--beans) / 2), minmax(0, 1fr)); row-gap: 4px; }
+  .chip, .ask img { max-width: 30px; }
+  .chip-button, .ask { min-height: 48px; padding: 4px 2px; justify-self: stretch; }
+}
+/* Sideways the bar is a narrow column: slimmer partner buttons keep four on one row. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .partners button { padding: 5px 3px; }
 }
 </style>

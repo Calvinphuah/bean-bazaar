@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, toRef, watch } from "vue"
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRef, watch } from "vue"
 import BeanCard from "./BeanCard.vue"
 import BrandMark from "./BrandMark.vue"
 import BeanField from "./BeanField.vue"
@@ -31,23 +31,29 @@ const props = defineProps<{
 const emit = defineEmits<{ leave: []; skip: []; tutorialDone: []; tutorial: []; toggleSound: [] }>()
 
 // Each layout is drawn for one size; a smaller window gets it scaled down to
-// fit, never squashed. Phones get their own layouts (same queries as the CSS).
+// fit, never squashed. Phones, and tablets held upright, get their own layouts
+// (same queries as the CSS).
 const LAYOUTS = {
   table: { width: 1200, height: 820, query: "" },
-  portrait: { width: 390, height: 730, query: "(orientation: portrait) and (max-width: 700px)" },
-  landscape: { width: 900, height: 400, query: "(orientation: landscape) and (max-height: 500px)" },
+  portrait: { width: 390, height: 730, query: "(orientation: portrait) and (max-width: 1024px)" },
+  landscape: { width: 900, height: 420, query: "(orientation: landscape) and (max-height: 500px)" },
 }
 type Layout = keyof typeof LAYOUTS
 const layout = ref<Layout>("table")
 const compact = computed(() => layout.value !== "table")
 // Past 1.5x the 240px card art starts to look soft.
 const MAX_SCALE = 1.5
+// Upright, the table never shrinks below this share of the screen width.
+const UPRIGHT_MIN_FILL = 0.85
 const scale = ref(1)
 
 function fitTable(): void {
   layout.value = (["portrait", "landscape"] as const).find((name) => window.matchMedia(LAYOUTS[name].query).matches) ?? "table"
   const size = LAYOUTS[layout.value]
-  scale.value = Math.min(MAX_SCALE, window.innerWidth / size.width, window.innerHeight / size.height)
+  const fitWidth = window.innerWidth / size.width
+  // The upright felt scrolls, so a short screen trades a little scrolling for readable text.
+  const fitHeight = Math.max(window.innerHeight / size.height, layout.value === "portrait" ? fitWidth * UPRIGHT_MIN_FILL : 0)
+  scale.value = Math.min(MAX_SCALE, fitWidth, fitHeight)
 }
 
 onMounted(() => {
@@ -153,6 +159,14 @@ const canAcceptOffer = computed(() => {
 })
 
 const trade = useTrade(toRef(props, "game"), isDealing, isBidding, props.move)
+// On a phone the felt scrolls, so a bot's offer, the trade bar's buttons or your
+// traded beans could open below the fold; bring the panel into view so its buttons can be reached.
+const actionPanel = ref<HTMLElement | null>(null)
+watch([offer, isDealing, () => trade.acceptors.value.length, () => me.value?.pending.length], async () => {
+  if (!compact.value) return
+  await nextTick()
+  actionPanel.value?.scrollIntoView({ block: "nearest", behavior: "smooth" })
+})
 
 watch(() => me.value?.pending.length, () => { pickedPending.value = null })
 
@@ -360,7 +374,7 @@ function ordinal(place: number): string {
           :bubble="bubbleFor(seat.index)"
           :answer="isDealing ? trade.answers.value[seat.index] ?? null : null"
           :counter="isDealing ? trade.counters.value[seat.index] ?? null : null"
-          :can-trade-with="isDealing && trade.answers.value[seat.index] === 'accept'"
+          :can-trade-with="!compact && isDealing && trade.answers.value[seat.index] === 'accept'"
           :gift="trade.isGift.value"
           :side="!compact && (seat.spot === 'left' || seat.spot === 'right') ? seat.spot : 'top'"
           @trade="trade.tradeWith(seat.index)"
@@ -451,7 +465,10 @@ function ordinal(place: number): string {
           </div>
         </div>
 
-        <div class="action">
+        <div
+          ref="actionPanel"
+          class="action"
+        >
           <!-- Beside your fields, not over them, so you can see what fits before answering. -->
           <OfferCard
             v-if="offer"
@@ -969,7 +986,7 @@ function ordinal(place: number): string {
 @media (hover: none) { .preview { display: none; } }
 
 /* Phones: the same table reflowed for a small screen, with tools behind a menu. */
-@media (orientation: portrait) and (max-width: 700px), (orientation: landscape) and (max-height: 500px) {
+@media (orientation: portrait) and (max-width: 1024px), (orientation: landscape) and (max-height: 500px) {
   .game { grid-template-rows: auto minmax(0, 1fr) auto; }
   .topbar { gap: 8px; padding: 4px 10px; }
   .more { display: block; min-width: 44px; min-height: 40px; font-size: 20px; }
@@ -980,14 +997,15 @@ function ordinal(place: number): string {
   .felt :deep(.seat) { position: relative; inset: auto; transform: none; }
   .row { gap: 10px; }
   .farm { gap: 8px; }
-  .buy-field { width: 80px; min-height: 148px; font-size: 12px; }
-  .my-plate { padding: 3px 12px 3px 3px; }
+  .buy-field { width: 80px; min-height: 148px; font-size: 13px; }
+  .my-plate { padding: 3px 12px 3px 3px; white-space: nowrap; }
   .my-plate img { width: 30px; height: 30px; }
   .my-plate strong { font-size: 15px; }
   .action { min-width: 0; }
   .instruction { padding: 7px 12px; border-radius: 14px; font-size: 13px; }
   .pending { width: 100%; padding: 8px 10px; gap: 4px; }
   .pending-cards { flex: 1; max-width: none; }
+  .left, .pending-rule { font-size: 13px; }
   .me { padding: 0 8px; }
   .preview { display: none; }
   .log-spot { right: 8px; top: 48px; }
@@ -997,7 +1015,7 @@ function ordinal(place: number): string {
 
 /* An upright phone: the bots in a strip along the top, the market, then your
    farm over what to do, with the hand along the bottom. */
-@media (orientation: portrait) and (max-width: 700px) {
+@media (orientation: portrait) and (max-width: 1024px) {
   .topbar { grid-template-columns: minmax(0, 1fr) auto; }
   .topbar :deep(.brand) { display: none; }
   /* Spread out when it all fits; a tall moment, like a trade, scrolls instead of overlapping. */
@@ -1019,12 +1037,12 @@ function ordinal(place: number): string {
   .topbar { grid-template-columns: auto minmax(0, 1fr) auto; }
   .topbar :deep(.tracker) { justify-self: center; }
   .felt { grid-template-columns: auto auto minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: 10px; padding: 0 12px; }
-  .seats { grid-row: 1; grid-column: 1; max-height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+  .seats { grid-row: 1; grid-column: 1; max-height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
   .felt :deep(.seat.spot-top) { grid-template-rows: none; grid-auto-flow: row; gap: 4px; }
   .middle { grid-row: 1; grid-column: 2; }
   .my-spot { grid-row: 1; grid-column: 3; padding-bottom: 0; }
   .row { align-items: center; }
-  .action { width: 250px; }
+  .action { width: 272px; }
 }
 
 .slide-enter-active, .slide-leave-active { transition: all .2s ease; }

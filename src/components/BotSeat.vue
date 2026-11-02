@@ -401,36 +401,36 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
 .side-top .pop-enter-from, .side-top .pop-leave-to { transform: translateY(6px) scale(.92); }
 
 /* Phones: a short seat, its plate over its fields, with the hand as a count on the plate. */
-@media (orientation: portrait) and (max-width: 700px), (orientation: landscape) and (max-height: 500px) {
+@media (orientation: portrait) and (max-width: 1024px), (orientation: landscape) and (max-height: 500px) {
   .seat { gap: 4px; }
   .seat.side-top .player { position: relative; gap: 0; }
   .plate { gap: 5px; padding: 2px 9px 2px 2px; }
   .avatar { width: 28px; height: 28px; }
   .turn-dot { width: 10px; height: 10px; }
-  .who strong { font-size: 12px; }
-  .coins { gap: 2px; font-size: 10px; }
+  .who strong { font-size: 13px; }
+  .coins { gap: 2px; font-size: 12px; }
   .coins img { width: 11px; }
   .hand { position: absolute; top: -7px; right: -6px; z-index: 1; height: auto; align-items: center; gap: 2px; padding: 1px 6px 1px 2px; border-radius: 999px; background: var(--panel); border: 1.5px solid var(--ink); }
   .hand img { display: none; }
   .hand img:first-child { display: block; width: 9px; margin: 0; border-width: 1px; border-radius: 2px; box-shadow: none; transform: none !important; }
-  .hand-count { position: static; padding: 0; background: none; font-size: 10px; }
+  .hand-count { position: static; padding: 0; background: none; font-size: 12px; }
   .fields { gap: 4px; }
   .field { width: 25px; height: 35px; border-radius: 4px; }
   .field :deep(.card.mini) { width: 25px; padding: 1px; border-radius: 3px; }
-  .badge { top: -5px; right: -6px; min-width: 16px; height: 16px; font-size: 9px; padding: 0 3px; border-width: 1.5px; }
-  .worth { bottom: -5px; left: -6px; height: 15px; font-size: 9px; padding: 0 3px 0 1px; border-width: 1.5px; }
+  .badge { top: -6px; right: -7px; min-width: 18px; height: 18px; font-size: 11px; padding: 0 3px; border-width: 1.5px; }
+  .worth { bottom: -6px; left: -7px; height: 17px; font-size: 11px; padding: 0 3px 0 1px; border-width: 1.5px; }
   .worth img { width: 10px; }
-  .bubble { max-width: 170px; font-size: 11px; padding: 5px 9px; }
-  .answer { font-size: 11px; padding: 3px 8px; }
+  .bubble { max-width: 170px; font-size: 12px; padding: 5px 9px; }
+  .answer { font-size: 12px; padding: 3px 8px; }
   .answer button { padding: 4px 8px; font-size: 11px; }
 }
 
 /* An upright phone lines the seats up across the top: replies hang below each seat. */
-@media (orientation: portrait) and (max-width: 700px) {
+@media (orientation: portrait) and (max-width: 1024px) {
   .side-top .bubble { top: calc(100% + 8px); left: 0; right: 0; width: auto; text-align: center; }
   .side-top .bubble::after { left: 50%; right: auto; top: auto; bottom: 100%; transform: translateX(-50%); border-right-color: transparent; border-bottom-color: var(--ink); }
-  .side-top .answer { top: calc(100% + 4px); bottom: auto; left: 0; right: 0; transform: none; justify-content: center; white-space: normal; text-align: center; }
-  .side-top .answer:has(button) button { width: 100%; line-height: 1.15; }
+  /* Over the bot's own fields, so the market stays clear; the trade bar has the trade buttons. */
+  .side-top .answer { top: auto; bottom: 0; left: 0; right: 0; min-height: 35px; transform: none; justify-content: center; white-space: normal; text-align: center; line-height: 1.15; border-radius: 10px; }
   .side-top .answer:has(.counter) { top: calc(100% + 4px); left: 50%; right: auto; transform: translateX(-50%); z-index: 6; }
   .seat:first-child .answer:has(.counter) { left: 0; transform: none; }
   .seat:last-child .answer:has(.counter) { left: auto; right: 0; transform: none; }
@@ -441,7 +441,7 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
 @media (orientation: landscape) and (max-height: 500px) {
   .seat.side-top { grid-template-rows: none; grid-template-columns: auto auto; justify-items: start; }
   /* Over the bot's own fields, so the market stays clear to pick from. */
-  .side-top .answer { top: 50%; bottom: auto; left: auto; right: -6px; transform: translateY(-50%); z-index: 6; }
+  .side-top .answer { top: 50%; bottom: auto; left: auto; right: -6px; max-width: 96px; transform: translateY(-50%); z-index: 6; white-space: normal; text-align: center; line-height: 1.15; }
   .side-top .answer:has(.counter) { top: 0; left: calc(100% + 6px); transform: none; }
 }
 </style>
