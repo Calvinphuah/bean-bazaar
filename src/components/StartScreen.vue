@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import BrandMark from "./BrandMark.vue"
+import { useInstall } from "../useInstall"
 import type { BotLevel } from "../types"
 
 defineProps<{ busy: boolean }>()
 
 const emit = defineEmits<{ start: [botCount: number, botLevel: BotLevel]; tutorial: [] }>()
+
+const { canInstall, iosHint, closed: installHintClosed, install, closeHint } = useInstall()
 
 const botCount = ref(3)
 const botLevel = ref<BotLevel>("normal")
@@ -85,6 +88,27 @@ const LEVELS: { level: BotLevel; label: string; hint: string }[] = [
           How to play
         </button>
       </div>
+
+      <div
+        v-if="(canInstall || iosHint) && !installHintClosed"
+        class="install"
+      >
+        <button
+          v-if="canInstall"
+          class="small secondary"
+          @click="install"
+        >
+          Install the app
+        </button>
+        <span v-else>Play full screen, even offline: tap Share, then Add to Home Screen.</span>
+        <button
+          class="close"
+          aria-label="Hide this tip"
+          @click="closeHint"
+        >
+          ×
+        </button>
+      </div>
     </div>
   </section>
 </template>
@@ -125,4 +149,6 @@ const LEVELS: { level: BotLevel; label: string; hint: string }[] = [
 .segment:focus-visible { outline: 3px solid var(--accent); outline-offset: -5px; }
 .hint { font-size: 13px; color: var(--muted); }
 .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+.install { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px dashed var(--muted); font-size: 13px; color: var(--muted); }
+.close { flex: none; width: 32px; height: 32px; padding: 0; font-size: 18px; line-height: 1; background: none; box-shadow: none; color: var(--muted); }
 </style>
