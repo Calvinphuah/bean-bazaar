@@ -229,9 +229,8 @@ const deckStyle = computed(() => {
 
 /* On its side the phone is short, so the flipped cards sit under the deck. */
 @media (orientation: landscape) and (max-height: 500px) {
-  /* The label sits above the pile, so the deck edges can tuck under it here. */
   .center { flex-direction: column; gap: 6px; }
-  .pile { gap: 6px; }
-  .pile-cards { width: 50px; }
+  .face-up { min-height: 108px; }
+  .pile-cards { width: 44px; }
 }
 </style>

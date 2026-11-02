@@ -260,8 +260,11 @@ h3 { font-size: 14px; }
   .chip, .ask img { max-width: 30px; }
   .chip-button, .ask { min-height: 48px; padding: 4px 2px; justify-self: stretch; }
 }
-/* Sideways the bar is a narrow column: slimmer partner buttons keep four on one row. */
+/* Sideways the bar is a narrow column: the status gets its own row, and slimmer
+   partner buttons keep four on one row. */
 @media (orientation: landscape) and (max-height: 500px) {
+  .status { flex-basis: 100%; }
   .partners button { padding: 5px 3px; }
+  .chips { min-height: 36px; }
 }
 </style>

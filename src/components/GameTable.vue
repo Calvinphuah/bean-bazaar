@@ -1034,7 +1034,7 @@ function ordinal(place: number): string {
 /* A phone on its side: the bots down the left, the market, then your farm
    beside what to do, with the hand along the bottom. */
 @media (orientation: landscape) and (max-height: 500px) {
-  .topbar { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .topbar { grid-template-columns: auto minmax(0, 1fr) auto; padding-top: 2px; padding-bottom: 2px; }
   .topbar :deep(.tracker) { justify-self: center; }
   .felt { grid-template-columns: auto auto minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: 10px; padding: 0 12px; }
   .seats { grid-row: 1; grid-column: 1; max-height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
@@ -1043,6 +1043,10 @@ function ordinal(place: number): string {
   .my-spot { grid-row: 1; grid-column: 3; padding-bottom: 0; }
   .row { align-items: center; }
   .action { width: 272px; }
+  /* Your column is the tallest sideways, so the leftover-cards note stays one plate high. */
+  .farm-side { gap: 4px; }
+  .locked { flex-wrap: nowrap; padding: 3px 8px; }
+  .locked :deep(.card.mini) { width: 22px; padding: 1px; border-radius: 3px; }
 }
 
 .slide-enter-active, .slide-leave-active { transition: all .2s ease; }

@@ -217,4 +217,9 @@ function onPointerDown(event: PointerEvent): void {
   .swap.front-right { right: auto; left: 0; }
   .empty { padding-bottom: 50px; }
 }
+/* Sideways the fan has room on both sides, so the swap button sits beside it, clear of the market above. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .swap { right: auto; left: calc(100% + 10px); bottom: 24px; }
+  .swap.front-right { left: auto; right: calc(100% + 10px); }
+}
 </style>
