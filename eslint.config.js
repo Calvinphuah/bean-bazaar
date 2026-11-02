@@ -37,4 +37,10 @@ export default [
       "no-console": ["error", { allow: ["warn", "error"] }],
     },
   },
+
+  // The balance sim prints its report.
+  {
+    files: ["scripts/**/*.ts"],
+    rules: { "no-console": "off" },
+  },
 ]

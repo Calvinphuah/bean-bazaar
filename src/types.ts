@@ -1,4 +1,4 @@
-// Mirrors Api::GameSerializer#as_json in the Rails API.
+// Mirrors serializeGame in src/games/serializer.ts (the Rails Api::GameSerializer shape).
 export type BeanKey = string
 
 export type Phase = "plant" | "trade" | "plant_pending" | "over"
