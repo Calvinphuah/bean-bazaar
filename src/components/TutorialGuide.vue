@@ -28,7 +28,7 @@ const STEPS = [
   {
     target: "deck",
     title: "Flip, then trade",
-    body: "After planting, flip 2 cards from the deck. Trade them, or cards from your hand, with the bots. Flipped cards nobody takes stay with you, and everything you keep or get must be planted.",
+    body: "After planting, flip 2 cards from the deck. Trade them, or cards from your hand, with the bots. Flipped cards nobody takes are yours. Everything you get or keep must be planted this turn.",
   },
   {
     target: "seats",
