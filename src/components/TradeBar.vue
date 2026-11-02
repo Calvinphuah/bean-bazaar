@@ -46,6 +46,13 @@ const getCounts = computed(() => {
   return counts
 })
 const hasOffer = computed(() => props.gives.length > 0 || Object.keys(props.asks).length > 0)
+
+// One less of a bean: drop an ask first, else put back the bot's face-up card you picked last.
+function less(bean: BeanKey): void {
+  if (props.asks[bean]) return emit("ask", bean, -1)
+  const picked = props.gives.filter((give) => give.source === "face_up" && give.bean === bean)
+  if (picked.length) emit("remove", picked[picked.length - 1]!)
+}
 </script>
 
 <template>
@@ -98,7 +105,7 @@ const hasOffer = computed(() => props.gives.length > 0 || Object.keys(props.asks
             :title="`${bean.name} Bean: right-click or press − to ask for one less`"
             :aria-label="`Ask for a ${bean.name} bean${getCounts[bean.key] ? `, ${getCounts[bean.key]} asked` : ''}`"
             @click="emit('ask', bean.key, 1)"
-            @contextmenu.prevent="emit('ask', bean.key, -1)"
+            @contextmenu.prevent="less(bean.key)"
             @mouseenter="emit('point', bean.key)"
             @mouseleave="emit('point', null)"
           >
@@ -114,10 +121,10 @@ const hasOffer = computed(() => props.gives.length > 0 || Object.keys(props.asks
           </button>
           <!-- Right-click needs a mouse; this works for touch and keyboard too. -->
           <button
-            v-if="asks[bean.key]"
+            v-if="getCounts[bean.key]"
             class="less"
             :aria-label="`Ask for one less ${bean.name} bean`"
-            @click="emit('ask', bean.key, -1)"
+            @click="less(bean.key)"
           >
             −
           </button>
