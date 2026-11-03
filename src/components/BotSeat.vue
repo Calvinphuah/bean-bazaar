@@ -422,6 +422,8 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
   .worth img { width: 10px; }
   .bubble { max-width: 170px; font-size: 12px; padding: 5px 9px; }
   .answer { font-size: 12px; padding: 3px 8px; }
+  /* Inked like the game's buttons, so a reply reads as a sticker on the table rather than a faint label. */
+  .answer:not(:has(button)):not(:has(.counter)) { border: 2px solid var(--ink); box-shadow: 0 2px 0 var(--ink); }
   .answer button { padding: 4px 8px; font-size: 11px; }
 }
 
@@ -442,9 +444,10 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
 /* A phone on its side stacks the seats down the left, each plate beside its
    fields so four still fit: replies sit to their right. */
 @media (orientation: landscape) and (max-height: 500px) {
-  .seat.side-top { grid-template-rows: none; grid-template-columns: auto auto; justify-items: start; }
+  /* Room between the plate and the fields for the plate's hand-count badge. */
+  .seat.side-top { grid-template-rows: none; grid-template-columns: auto auto; justify-items: start; column-gap: 12px; }
   /* Over the bot's own fields, so the market stays clear to pick from. */
-  .side-top .answer { top: 50%; bottom: auto; left: auto; right: -4px; width: 62px; min-height: 42px; justify-content: center; padding: 2px 4px; border-radius: 8px; font-size: 10px; transform: translateY(-50%); z-index: 6; white-space: normal; text-align: center; line-height: 1.1; }
+  .side-top .answer { top: 50%; bottom: auto; left: auto; right: -4px; width: 62px; min-height: 38px; justify-content: center; padding: 2px 4px; border-radius: 8px; font-size: 10px; transform: translateY(-50%); z-index: 6; white-space: normal; text-align: center; line-height: 1.1; }
   .side-top .answer:has(.counter) { top: 0; left: calc(100% + 6px); transform: none; }
 }
 </style>

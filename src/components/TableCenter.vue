@@ -224,6 +224,8 @@ const deckStyle = computed(() => {
   .tossed :deep(.name) { display: none; }
   /* Too small for a three-line name over the art: the picture and its coin row say which bean it is. */
   .face-up :deep(.name) { display: none; }
+  /* A picked card keeps its gold ring but doesn't lift, so it can't rise into the bots' replies above. */
+  .face-up :deep(.card.selected) { transform: none; }
   /* Over a tall discard pile rather than under it. */
   .label { position: relative; z-index: 1; font-size: 13px; }
   .count { top: -8px; right: -8px; min-width: 26px; height: 24px; font-size: 13px; }

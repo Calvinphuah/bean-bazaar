@@ -245,7 +245,9 @@ h3 small { font-size: inherit; }
   .ask { padding: 3px 1px; }
   .ask-name { display: none; }
   .ask-count { right: 0; font-size: 10px; padding: 0 4px; }
-  .less { width: 22px; height: 22px; top: -6px; left: -2px; }
+  /* A tab centred on the card's bottom edge, away from the count and inside its own column however narrow.
+     Centred by margin, not transform, which a pressed button uses. */
+  .less { width: 20px; height: 20px; top: auto; bottom: -4px; left: 50%; margin-left: -10px; font-size: 14px; }
   .footer { flex-wrap: wrap; justify-content: flex-end; }
   .status { font-size: 12px; }
   /* Up to four partners stay on one row above the buttons instead of wrapping under them. */

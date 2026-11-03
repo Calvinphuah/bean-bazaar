@@ -13,7 +13,7 @@ import TableEffects from "./TableEffects.vue"
 import TradeBar from "./TradeBar.vue"
 import TutorialGuide from "./TutorialGuide.vue"
 import { setCardDragImage, startTouchDrag } from "../dragImage"
-import { MAX_FIELDS, MAX_HAND_PLANTS, THIRD_FIELD_PRICE, accepts, addressYou, canHarvest, coinText } from "../rules"
+import { MAX_FIELDS, MAX_HAND_PLANTS, THIRD_FIELD_PRICE, accepts, addressYou, canHarvest, coinText, listNames } from "../rules"
 import { useRollingNumber } from "../useRollingNumber"
 import { useTrade } from "../useTrade"
 import type { BeanKey, BeanType, FieldState, GameState, LogEvent, Move, PlayerState, TableSnapshot } from "../types"
@@ -287,7 +287,7 @@ const myStanding = computed(() => standings.value.find((entry) => entry.index ==
 const winnerNames = computed(() => standings.value.filter((entry) => entry.winner).map((entry) => entry.name))
 const resultTitle = computed(() => {
   if (youWon.value) return winnerNames.value.length > 1 ? "You share the win!" : "You win the bazaar!"
-  return `${winnerNames.value.join(" and ")} ${winnerNames.value.length > 1 ? "share" : "wins"} the bazaar`
+  return `${listNames(winnerNames.value)} ${winnerNames.value.length > 1 ? "share" : "wins"} the bazaar`
 })
 const resultLine = computed(() => {
   const mine = myStanding.value
@@ -295,9 +295,11 @@ const resultLine = computed(() => {
   const best = standings.value[0]?.coins ?? 0
   const runnerUp = standings.value.find((entry) => !entry.winner)?.coins ?? best
   if (youWon.value && winnerNames.value.length > 1) {
-    return `Tied for first with ${winnerNames.value.filter((name) => name !== mine.name).join(" and ")}.`
+    return `Tied for first with ${listNames(winnerNames.value.filter((name) => name !== mine.name))}.`
   }
   if (youWon.value) return best > runnerUp ? `${coinText(best - runnerUp)} ahead of 2nd place.` : "Nobody could catch you."
+  // Level on coins with a winner, you lost on cards in hand instead.
+  if (mine.coins === best) return `You came ${ordinal(mine.place)}: level on coins, but fewer cards in hand.`
   return `You came ${ordinal(mine.place)}, ${coinText(best - mine.coins)} behind.`
 })
 // Only a win gets the shower of coins.
@@ -372,12 +374,16 @@ function ordinal(place: number): string {
       class="felt"
       :class="`season-${Math.min(table.deck.run_outs + 1, 3)}`"
     >
-      <!-- Just a box for the phone layouts, which line the seats up in a strip. -->
-      <div class="seats">
+      <!-- Just a box for the phone layouts, which line the seats up in a strip; there
+           the tutorial points at the whole strip, and around the desktop table at the first seat. -->
+      <div
+        class="seats"
+        :data-tour="compact ? 'seats' : null"
+      >
         <BotSeat
           v-for="seat in seats"
           :key="seat.index"
-          data-tour="seats"
+          :data-tour="compact ? null : 'seats'"
           :seat-index="seat.index"
           :class="`spot-${seat.spot}`"
           :name="nameOf(seat.index)"
@@ -1078,7 +1084,8 @@ function ordinal(place: number): string {
   .topbar { grid-template-columns: auto minmax(0, 1fr) auto; padding-top: 2px; padding-bottom: 2px; }
   .topbar :deep(.tracker) { justify-self: center; }
   .felt { grid-template-columns: auto auto minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: 10px; padding: 0 12px; }
-  .seats { grid-row: 1; grid-column: 1; max-height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+  /* Far enough apart that one bot's field badges never run into the next bot's. */
+  .seats { grid-row: 1; grid-column: 1; max-height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
   .felt :deep(.seat.spot-top) { grid-template-rows: none; grid-auto-flow: row; gap: 4px; }
   .middle { grid-row: 1; grid-column: 2; }
   .my-spot { grid-row: 1; grid-column: 3; padding-bottom: 0; }
@@ -1090,6 +1097,21 @@ function ordinal(place: number): string {
   .plate-row { flex-direction: row; }
   .locked { flex-wrap: nowrap; padding: 3px 8px; }
   .locked :deep(.card.mini) { width: 22px; padding: 1px; border-radius: 3px; }
+  /* The traded beans in a row with the hint under them, so the narrow panel stays short. */
+  .pending-head strong { font-size: 15px; line-height: 1.15; }
+  .pending-rule { display: none; }
+  .pending-body { flex-direction: column; align-items: stretch; gap: 2px; }
+  .pending-cards { padding: 6px 0 10px; }
+  .pending-cards :deep(.card.small) { width: 50px; }
+  .pending-hint { font-size: 12px; }
+  /* Short standings, so Play again stays on screen; a five-player table can still scroll to it. */
+  .overlay { padding: 8px; overflow-y: auto; }
+  .result { gap: 6px; padding: 12px 16px; }
+  .result h2 { font-size: 20px; }
+  .result-line { margin: -2px 0 2px; }
+  .result ol { gap: 4px; }
+  .result li { grid-template-columns: 26px 28px 1fr auto; padding: 3px 10px; }
+  .face { width: 28px; height: 28px; }
 }
 
 .slide-enter-active, .slide-leave-active { transition: all .2s ease; }
