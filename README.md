@@ -6,7 +6,7 @@
 
 A bean-trading card game for 1 player against 2 to 4 bots, right in your browser.
 
-[![Planting, trading and harvesting in Bean Bazaar](docs/media/gameplay.gif)](#watch-the-trailer)
+[![A real turn: plant a bean, flip two cards, then take a gift from Pinto](docs/media/gameplay.gif)](https://bean-bazaar.calvinphuah.com)
 
 ### [▶ Play free in your browser](https://bean-bazaar.calvinphuah.com) · [🎬 Watch the trailer](#watch-the-trailer)
 
@@ -26,7 +26,7 @@ https://github.com/user-attachments/assets/26a68a9e-3174-4e5e-a48a-ec110c18f053
   <img src="public/cards/stink-240.webp" width="110" alt="Stink Bean">
   <img src="public/cards/soy-240.webp" width="110" alt="Soy Bean">
   <img src="public/cards/red-240.webp" width="110" alt="Red Bean">
-  <img src="public/cards/wax-240.webp" width="110" alt="Wax Bean">
+  <img src="public/cards/golden-240.webp" width="110" alt="Golden Bean">
 </p>
 
 Every bean is hand-painted, from the Blue Bean playing sax in the rain to the Chili Bean bundled up against the snow.
