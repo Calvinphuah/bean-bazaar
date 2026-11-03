@@ -34,7 +34,7 @@ https://github.com/user-attachments/assets/26a68a9e-3174-4e5e-a48a-ec110c18f053
   <img src="public/cards/golden-240.webp" width="100" alt="Golden Bean">
 </p>
 
-All ten beans are hand-painted, from the Blue Bean playing sax in the rain to the Chili Bean bundled up against the snow.
+Ten beans, each with its own character, from the Blue Bean playing sax in the rain to the Chili Bean bundled up against the snow.
 
 ## How it plays
 
@@ -110,5 +110,5 @@ The site is static files, so any static host works. See [docs/cloudflare-pages.m
 ## Credits
 
 - Sound effects: "Casino Audio" by [Kenney](https://www.kenney.nl), CC0.
-- Card and character art made for this game.
+- Card and character art: AI-generated for this game.
 - Trailer music and sound: see [trailer/public/audio/CREDITS.txt](trailer/public/audio/CREDITS.txt).
