@@ -92,7 +92,9 @@ function less(bean: BeanKey): void {
     </div>
 
     <div class="section get">
-      <h3>{{ bidWith ? `You get from ${bidWith}` : "You get" }}</h3>
+      <h3>
+        You get<small v-if="bidWith"> from {{ bidWith }}</small>
+      </h3>
       <div class="asks">
         <div
           v-for="bean in beans"
@@ -126,7 +128,10 @@ function less(bean: BeanKey): void {
             :aria-label="`Ask for one less ${bean.name} bean`"
             @click="less(bean.key)"
           >
-            −
+            <span
+              class="less-bar"
+              aria-hidden="true"
+            />
           </button>
         </div>
       </div>
@@ -181,6 +186,7 @@ function less(bean: BeanKey): void {
 .trade { width: calc(var(--beans) * 50px + 24px); display: grid; gap: 6px; padding: 10px 12px; box-shadow: 0 10px 24px rgba(0, 0, 0, .4); }
 .section { display: grid; gap: 5px; }
 h3 { font-size: 14px; }
+h3 small { font-size: inherit; }
 .hint { font-family: "Plus Jakarta Sans", sans-serif; font-size: 11px; font-weight: 500; color: var(--muted); }
 /* Same columns as the asks below, so both rows line up. */
 .chips { display: grid; grid-template-columns: repeat(var(--beans), 1fr); gap: 2px; min-height: 50px; padding-top: 4px; align-items: center; justify-items: center; }
@@ -204,6 +210,8 @@ h3 { font-size: 14px; }
   background: var(--panel);
   box-shadow: none;
 }
+/* Drawn, not typed: a text minus sits wherever the font puts it, rarely the middle of the circle. */
+.less-bar { width: 8px; height: 2px; border-radius: 1px; background: currentColor; }
 .ask { position: relative; display: grid; justify-items: center; gap: 2px; padding: 3px; border-radius: 8px; transition: background .15s ease; }
 .ask:hover { background: var(--panel-dark); }
 .ask.chosen { background: #cfe9c5; }
@@ -242,7 +250,9 @@ h3 { font-size: 14px; }
   .ask { padding: 3px 1px; }
   .ask-name { display: none; }
   .ask-count { right: 0; font-size: 10px; padding: 0 4px; }
-  .less { width: 22px; height: 22px; top: -6px; left: -2px; }
+  /* A tab centred on the card's bottom edge, away from the count and inside its own column however narrow.
+     Centred by margin, not transform, which a pressed button uses. */
+  .less { width: 20px; height: 20px; top: auto; bottom: -4px; left: 50%; margin-left: -10px; }
   .footer { flex-wrap: wrap; justify-content: flex-end; }
   .status { font-size: 12px; }
   /* Up to four partners stay on one row above the buttons instead of wrapping under them. */
@@ -256,8 +266,9 @@ h3 { font-size: 14px; }
      of keyboard-key-sized buttons under its title. */
   .section { grid-template-columns: 62px minmax(0, 1fr); align-items: center; gap: 4px; }
   .trade { padding: 6px 8px; gap: 3px; }
-  .section.get { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  /* Both titles sit beside their rows, so the bar stays two rows high. */
   h3 { font-size: 12px; line-height: 1.2; white-space: nowrap; }
+  h3 small { display: block; font-family: "Plus Jakarta Sans", sans-serif; font-size: 10px; font-weight: 800; color: var(--muted); }
   .chips { min-height: 36px; padding-top: 0; }
   .chip, .ask img { max-width: 28px; }
   .chip-button, .ask { min-height: 44px; padding: 4px 1px; justify-self: stretch; }

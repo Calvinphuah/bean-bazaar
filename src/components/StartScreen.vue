@@ -151,4 +151,19 @@ const LEVELS: { level: BotLevel; label: string; hint: string }[] = [
 .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
 .install { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px dashed var(--muted); font-size: 13px; color: var(--muted); }
 .close { flex: none; width: 32px; height: 32px; padding: 0; font-size: 18px; line-height: 1; background: none; box-shadow: none; color: var(--muted); }
+
+/* Phones: a smaller fan and a tighter panel, so Deal me in fits on the first screen. */
+@media (orientation: portrait) and (max-width: 600px), (orientation: landscape) and (max-height: 500px) {
+  .start { gap: 8px; padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+  .fan { zoom: .5; }
+  .intro { gap: 12px; padding: 18px; }
+  .tagline { font-size: 15px; }
+}
+/* Sideways: the fan beside the panel, and the two choices side by side. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .start { flex-wrap: nowrap; gap: 20px; padding-top: max(8px, env(safe-area-inset-top)); padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+  .intro { width: min(540px, 100%); grid-template-columns: auto minmax(0, 1fr); gap: 6px 24px; padding: 12px 18px; }
+  .title, .tagline, .actions, .install { grid-column: 1 / -1; }
+  .install { padding-top: 8px; }
+}
 </style>

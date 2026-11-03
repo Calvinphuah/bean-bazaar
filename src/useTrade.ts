@@ -1,14 +1,9 @@
 import { computed, onBeforeUnmount, ref, watch, type Ref } from "vue"
 import { quoteTrade, type QuoteAnswer, type TradeCounter } from "./api"
+import { listNames } from "./rules"
 import type { BeanKey, GameState, Move, TradeGive } from "./types"
 
 const QUOTE_DELAY_MS = 250
-
-// "Pinto", "Pinto and Lima", "Pinto, Lima and Fava".
-function listNames(names: string[]): string {
-  if (names.length < 2) return names.join("")
-  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`
-}
 
 // The offer you are building on your trade turn, with each bot's live answer,
 // in the style of Colonist: pick what you give and get, bots answer on their seats.

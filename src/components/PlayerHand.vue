@@ -7,7 +7,8 @@ import type { BeanKey, BeanType } from "../types"
 // The fan never gets wider than its max width, so a big late-game hand still fits the screen.
 const FAN = { cardWidth: 132, maxWidth: 860, maxStep: 96 }
 // Phone layouts draw smaller cards (see BeanCard) in a narrower fan.
-const COMPACT_FAN = { cardWidth: 76, maxWidth: 340, maxStep: 54 }
+// It leaves room at each end for the round swap button.
+const COMPACT_FAN = { cardWidth: 76, maxWidth: 290, maxStep: 54 }
 const FRONT_SIDE_KEY = "bean-bazaar-front-on-right"
 
 const props = defineProps<{
@@ -106,9 +107,11 @@ function onPointerDown(event: PointerEvent): void {
         class="swap small secondary"
         :class="{ 'front-right': frontOnRight }"
         :title="frontOnRight ? 'Put the card to plant next on the left' : 'Put the card to plant next on the right'"
+        :aria-label="frontOnRight ? 'Put the card to plant next on the left' : 'Put the card to plant next on the right'"
         @click="frontOnRight = !frontOnRight"
       >
-        ⇄ Next card {{ frontOnRight ? "right" : "left" }}
+        <span aria-hidden="true">⇄</span>
+        <span class="swap-label">Next card {{ frontOnRight ? "right" : "left" }}</span>
       </button>
       <TransitionGroup name="deal">
         <template
@@ -207,19 +210,15 @@ function onPointerDown(event: PointerEvent): void {
 .slot.dragging .next { visibility: hidden; }
 .empty { font-size: 13px; color: #fff6dc; padding-bottom: 80px; }
 
-/* Phones: smaller cards, and the swap button tucked above the fan's left end. */
+/* Phones: smaller cards, and the swap button a round icon beside the fan, at
+   the end away from the front card, so it costs no height. */
 @media (orientation: portrait) and (max-width: 1024px), (orientation: landscape) and (max-height: 500px) {
   /* The whole card shows, corner number included, clear of the home bar. */
-  .hand { padding: 24px 8px max(14px, env(safe-area-inset-bottom)); margin-bottom: 0; min-height: 100px; }
-  /* At the end away from the front card, clear of its Plant next tag. */
-  .swap { right: 0; bottom: calc(100% - 4px); padding: 3px 10px; font-size: 12px; }
-  .next { font-size: 12px; }
-  .swap.front-right { right: auto; left: 0; }
-  .empty { padding-bottom: 50px; }
-}
-/* Sideways the fan has room on both sides, so the swap button sits beside it, clear of the market above. */
-@media (orientation: landscape) and (max-height: 500px) {
-  .swap { right: auto; left: calc(100% + 10px); bottom: 24px; }
+  .hand { padding: 16px 8px max(8px, env(safe-area-inset-bottom)); margin-bottom: 0; min-height: 100px; }
+  .swap { right: auto; left: calc(100% + 10px); bottom: 30px; width: 36px; height: 36px; padding: 0; display: grid; place-items: center; font-size: 18px; line-height: 1; }
   .swap.front-right { left: auto; right: calc(100% + 10px); }
+  .swap-label { display: none; }
+  .next { font-size: 12px; }
+  .empty { padding-bottom: 50px; }
 }
 </style>

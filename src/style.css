@@ -17,10 +17,17 @@
 
 * { box-sizing: border-box; }
 
+/* iOS enlarges text when a phone turns sideways; the table sizes itself instead. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+/* While the table is up the page itself never scrolls, so a drag can't slide the background around. */
+html:has(.game), html:has(.game) body { overflow: hidden; }
+
 /* A warm wooden market table: soft plank lines, grain, and a vignette at the edges. */
 body {
   margin: 0;
   min-height: 100vh;
+  /* The visible height, not the height with the browser bars hidden, so on a phone the page has nothing extra to drag. */
+  min-height: 100dvh;
   /* The table is pinned in place, so a swipe never pulls the page to reload it. */
   overscroll-behavior: none;
   background:

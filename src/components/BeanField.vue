@@ -182,8 +182,15 @@ function onDrop(): void {
   .badge { min-width: 24px; height: 24px; font-size: 13px; }
   .actions button { padding: 6px 10px; font-size: 13px; white-space: nowrap; }
 }
-/* A phone on its side is short, so the next-payout line stays on one line. */
+/* Upright, a field with both buttons is the tallest thing on the table, so they slim down. */
+@media (orientation: portrait) and (max-width: 1024px) {
+  .actions { gap: 4px; }
+  .actions button { padding: 4px 10px; }
+}
+/* A phone on its side is short, so the next-payout line stays on one line,
+   in a field wide enough to hold it. */
 @media (orientation: landscape) and (max-height: 500px) {
+  .field { width: 98px; }
   .info { min-height: 0; font-size: 11px; white-space: nowrap; }
   .actions button { padding: 4px 10px; }
 }

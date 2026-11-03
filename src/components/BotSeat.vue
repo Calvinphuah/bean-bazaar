@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue"
 import BeanCard from "./BeanCard.vue"
-import { coinText, coinsFor } from "../rules"
+import { coinText, coinWord, coinsFor } from "../rules"
 import { useRollingNumber } from "../useRollingNumber"
 import type { BeanKey, BeanType, TableSnapshot } from "../types"
 import type { QuoteAnswer, TradeCounter } from "../api"
@@ -103,7 +103,7 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
             class="coin-hop"
             src="/cards/coin.webp"
             alt=""
-          >{{ coinText(coins.shown.value) }}</span>
+          >{{ coins.shown.value }}<span class="coin-word">&nbsp;{{ coinWord(coins.shown.value) }}</span></span>
         </div>
       </div>
 
@@ -164,9 +164,10 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
       <button
         v-if="answer === 'accept' && canTradeWith"
         class="small"
+        :aria-label="`${gift ? 'Give to' : 'Trade with'} ${name}`"
         @click="emit('trade')"
       >
-        {{ gift ? "Give to" : "Trade with" }} {{ name }}
+        {{ gift ? "Give" : "Trade" }}<span class="trade-target">&nbsp;{{ gift ? "to" : "with" }} {{ name }}</span>
       </button>
       <!-- A no with a smaller deal attached shows that deal, ready to take in one click. -->
       <div
@@ -422,6 +423,8 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
   .worth img { width: 10px; }
   .bubble { max-width: 170px; font-size: 12px; padding: 5px 9px; }
   .answer { font-size: 12px; padding: 3px 8px; }
+  /* Inked like the game's buttons, so a reply reads as a sticker on the table rather than a faint label. */
+  .answer:not(:has(button)):not(:has(.counter)) { border: 2px solid var(--ink); box-shadow: 0 2px 0 var(--ink); }
   .answer button { padding: 4px 8px; font-size: 11px; }
 }
 
@@ -429,9 +432,14 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
 @media (orientation: portrait) and (max-width: 1024px) {
   .side-top .bubble { top: calc(100% + 8px); left: 0; right: 0; width: auto; text-align: center; }
   .side-top .bubble::after { left: 50%; right: auto; top: auto; bottom: 100%; transform: translateX(-50%); border-right-color: transparent; border-bottom-color: var(--ink); }
-  /* Over the bot's own fields, so the market stays clear; the trade bar has the trade buttons. */
-  .side-top .answer { top: auto; bottom: 0; left: 0; right: 0; min-height: 35px; transform: none; justify-content: center; white-space: normal; text-align: center; line-height: 1.15; border-radius: 10px; }
+  /* Over the bot's own fields, so the market stays clear; a yes is the trade button itself. */
+  .side-top .answer { top: auto; bottom: -1px; left: 0; right: 0; min-height: 40px; transform: none; justify-content: center; white-space: normal; text-align: center; line-height: 1.15; border-radius: 10px; }
   .side-top .answer:has(.counter) { top: calc(100% + 4px); left: 50%; right: auto; transform: translateX(-50%); z-index: 6; }
+  /* A yes is the trade button itself, filling the reply's spot over the bot's fields. */
+  .side-top .answer:has(button) { padding: 0; background: none; box-shadow: none; }
+  .side-top .answer button { width: 100%; min-height: 40px; padding: 2px 6px; font-size: 13px; line-height: 1.1; white-space: normal; }
+  /* The button sits under the bot's face, so its name would only repeat; the label keeps it for screen readers. */
+  .trade-target { display: none; }
   .seat:first-child .answer:has(.counter) { left: 0; transform: none; }
   .seat:last-child .answer:has(.counter) { left: auto; right: 0; transform: none; }
 }
@@ -439,9 +447,10 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
 /* A phone on its side stacks the seats down the left, each plate beside its
    fields so four still fit: replies sit to their right. */
 @media (orientation: landscape) and (max-height: 500px) {
-  .seat.side-top { grid-template-rows: none; grid-template-columns: auto auto; justify-items: start; }
+  /* Room between the plate and the fields for the plate's hand-count badge. */
+  .seat.side-top { grid-template-rows: none; grid-template-columns: auto auto; justify-items: start; column-gap: 12px; }
   /* Over the bot's own fields, so the market stays clear to pick from. */
-  .side-top .answer { top: 50%; bottom: auto; left: auto; right: -6px; max-width: 96px; transform: translateY(-50%); z-index: 6; white-space: normal; text-align: center; line-height: 1.15; }
+  .side-top .answer { top: 50%; bottom: auto; left: auto; right: -4px; width: 62px; min-height: 38px; justify-content: center; padding: 2px 4px; border-radius: 8px; font-size: 10px; transform: translateY(-50%); z-index: 6; white-space: normal; text-align: center; line-height: 1.1; }
   .side-top .answer:has(.counter) { top: 0; left: calc(100% + 6px); transform: none; }
 }
 </style>

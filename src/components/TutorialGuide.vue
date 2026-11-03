@@ -4,7 +4,8 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue"
 const emit = defineEmits<{ close: [] }>()
 
 // Each step points at an element marked data-tour="…"; a missing target shows the step centred.
-const STEPS = [
+// A touch screen has no pointer to hover with, so a few steps say it its own way.
+const STEPS: { target: string; title: string; body: string; touchBody?: string }[] = [
   {
     target: "hand",
     title: "Your hand",
@@ -14,6 +15,7 @@ const STEPS = [
     target: "hand",
     title: "Reading a card",
     body: "The big number in the corner is how many of that bean are in the deck. Fewer copies means a rarer bean that pays more. Point at a card to see it big: the number under each coin stack is how many beans you need to harvest for that many coins.",
+    touchBody: "The big number in the corner is how many of that bean are in the deck. Fewer copies means a rarer bean that pays more. Tap a card in your hand to lift it out. Payouts in the ☰ menu shows how many beans each coin needs.",
   },
   {
     target: "fields",
@@ -34,6 +36,7 @@ const STEPS = [
     target: "seats",
     title: "Bots answer instantly",
     body: "On your turn, click cards to give and beans you want. Every bot answers on its seat: Deal!, No thanks, or Don't have it. A bot that says no may suggest a different deal you can take.",
+    touchBody: "On your turn, tap cards to give and beans you want. Every bot answers on its seat: a yes, a no, or that it doesn't have them. A bot that says no may suggest a different deal you can take.",
   },
   {
     target: "seats",
@@ -47,33 +50,57 @@ const STEPS = [
   },
 ]
 
+const SPOT_PADDING = 8
+// Space between the card and what it points at, and from the screen edge.
+const GAP = 14
+const MARGIN = 12
+
+const touch = window.matchMedia("(hover: none)").matches
 const step = ref(0)
 const spot = ref<{ top: number; left: number; width: number; height: number } | null>(null)
+const card = ref<HTMLElement | null>(null)
+const cardSize = ref({ width: 360, height: 240 })
 const current = computed(() => STEPS[step.value] ?? STEPS[0]!)
+const body = computed(() => (touch && current.value.touchBody) || current.value.body)
 const last = computed(() => step.value === STEPS.length - 1)
 
-function measure(): void {
+async function measure(): Promise<void> {
   const element = document.querySelector(`[data-tour="${current.value.target}"]`)
   if (!element) {
     spot.value = null
-    return
+  } else {
+    // The upright phone table can scroll, so bring the target into view first.
+    element.scrollIntoView({ block: "nearest" })
+    const rect = element.getBoundingClientRect()
+    spot.value = { top: rect.top - SPOT_PADDING, left: rect.left - SPOT_PADDING, width: rect.width + SPOT_PADDING * 2, height: rect.height + SPOT_PADDING * 2 }
   }
-  // The upright phone table can scroll, so bring the target into view first.
-  element.scrollIntoView({ block: "nearest" })
-  const rect = element.getBoundingClientRect()
-  const padding = 8
-  spot.value = { top: rect.top - padding, left: rect.left - padding, width: rect.width + padding * 2, height: rect.height + padding * 2 }
+  // The card's height changes with each step's text, so place it by its real size.
+  await nextTick()
+  if (card.value) cardSize.value = { width: card.value.offsetWidth, height: card.value.offsetHeight }
 }
 
-// Keep the card beside the highlighted area, inside the screen.
+// The card goes below, above, right or left of the highlight, the first that
+// fits on screen; failing all, it takes the roomier end of the screen.
 const cardStyle = computed(() => {
-  if (!spot.value) return { top: "50%", left: "50%", transform: "translate(-50%, -50%)" }
-  const below = spot.value.top + spot.value.height + 16
-  const top = below + 220 < window.innerHeight ? below : Math.max(16, spot.value.top - 236)
-  // Narrower than 360px on a phone, as the CSS below says.
-  const cardWidth = Math.min(360, window.innerWidth - 32)
-  const left = Math.max(16, Math.min(spot.value.left, window.innerWidth - cardWidth - 16))
-  return { top: `${top}px`, left: `${left}px` }
+  const target = spot.value
+  if (!target) return { top: "50%", left: "50%", transform: "translate(-50%, -50%)" }
+  const { width, height } = cardSize.value
+  const clampLeft = (left: number) => Math.max(MARGIN, Math.min(left, window.innerWidth - width - MARGIN))
+  const clampTop = (top: number) => Math.max(MARGIN, Math.min(top, window.innerHeight - height - MARGIN))
+  const below = target.top + target.height + GAP
+  const above = target.top - GAP - height
+  const right = target.left + target.width + GAP
+  const left = target.left - GAP - width
+  let place: { top: number; left: number }
+  if (below + height + MARGIN <= window.innerHeight) place = { top: below, left: clampLeft(target.left) }
+  else if (above >= MARGIN) place = { top: above, left: clampLeft(target.left) }
+  else if (right + width + MARGIN <= window.innerWidth) place = { top: clampTop(target.top), left: right }
+  else if (left >= MARGIN) place = { top: clampTop(target.top), left }
+  else {
+    const roomAbove = target.top > window.innerHeight - target.top - target.height
+    place = { top: roomAbove ? MARGIN : clampTop(window.innerHeight), left: clampLeft(target.left) }
+  }
+  return { top: `${place.top}px`, left: `${place.left}px` }
 })
 
 function next(): void {
@@ -106,6 +133,7 @@ onBeforeUnmount(() => window.removeEventListener("resize", measure))
       class="dim"
     />
     <div
+      ref="card"
       class="card panel"
       :style="cardStyle"
     >
@@ -113,7 +141,7 @@ onBeforeUnmount(() => window.removeEventListener("resize", measure))
       <h2 id="tour-title">
         {{ current.title }}
       </h2>
-      <p>{{ current.body }}</p>
+      <p>{{ body }}</p>
       <div class="buttons">
         <button
           class="small secondary"
@@ -151,9 +179,17 @@ onBeforeUnmount(() => window.removeEventListener("resize", measure))
   transition: all .3s ease;
   pointer-events: none;
 }
-.card { position: absolute; width: min(360px, calc(100vw - 32px)); display: grid; gap: 8px; padding: 18px; box-shadow: 0 18px 40px rgba(0, 0, 0, .6); }
+.card { position: absolute; width: min(360px, calc(100vw - 32px)); max-height: calc(100dvh - 24px); overflow-y: auto; display: grid; gap: 8px; padding: 18px; box-shadow: 0 18px 40px rgba(0, 0, 0, .6); }
 .count { font-size: 12px; font-weight: 800; color: var(--muted); }
 h2 { font-size: 22px; }
 p { margin: 0; line-height: 1.5; }
 .buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+
+/* A phone on its side is short: a tighter card, narrow enough to fit beside what it points at. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .card { width: min(320px, calc(100vw - 32px)); gap: 4px; padding: 10px 14px; }
+  h2 { font-size: 17px; }
+  p { font-size: 13px; line-height: 1.35; }
+  .buttons { margin-top: 2px; }
+}
 </style>

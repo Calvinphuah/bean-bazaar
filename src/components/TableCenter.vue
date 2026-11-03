@@ -215,10 +215,17 @@ const deckStyle = computed(() => {
 
 @media (orientation: portrait) and (max-width: 1024px), (orientation: landscape) and (max-height: 500px) {
   .center { gap: 16px; }
-  .piles { gap: 8px 14px; }
-  /* A full deck's edges hang about 20px below the cards, clear of the label. */
-  .pile { gap: 20px; }
-  .pile-cards { width: 56px; }
+  .piles { gap: 6px 14px; }
+  /* A full deck's edges hang about 15px below the cards, clear of the label. */
+  .pile { gap: 16px; }
+  .pile-cards { width: 50px; }
+  /* The discards fill their pile, however small, instead of spilling over its label. */
+  .tossed :deep(.card) { width: 100%; padding: 2px; border-radius: 6px; }
+  .tossed :deep(.name) { display: none; }
+  /* Too small for a three-line name over the art: the picture and its coin row say which bean it is. */
+  .face-up :deep(.name) { display: none; }
+  /* A picked card keeps its gold ring but doesn't lift, so it can't rise into the bots' replies above. */
+  .face-up :deep(.card.selected) { transform: none; }
   /* Over a tall discard pile rather than under it. */
   .label { position: relative; z-index: 1; font-size: 13px; }
   .count { top: -8px; right: -8px; min-width: 26px; height: 24px; font-size: 13px; }
@@ -229,7 +236,8 @@ const deckStyle = computed(() => {
 
 /* On its side the phone is short, so the flipped cards sit under the deck. */
 @media (orientation: landscape) and (max-height: 500px) {
-  .center { flex-direction: column; gap: 6px; }
+  /* Room for a picked card's lift and glow, so it never covers the season bar. */
+  .center { flex-direction: column; gap: 16px; }
   .face-up { min-height: 108px; }
   /* Above the picked market card's glow, which reaches up to it on a short screen. */
   .seasons { position: relative; z-index: 2; }
