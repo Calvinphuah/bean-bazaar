@@ -35,7 +35,11 @@ export function canHarvest(fields: FieldState[], index: number): boolean {
 }
 
 export function coinText(coins: number): string {
-  return `${coins} ${coins === 1 ? "coin" : "coins"}`
+  return `${coins} ${coinWord(coins)}`
+}
+
+export function coinWord(coins: number): string {
+  return coins === 1 ? "coin" : "coins"
 }
 
 // The engine names every seat the same way, so "Lima turned down You's offer"

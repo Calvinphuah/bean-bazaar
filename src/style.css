@@ -17,6 +17,9 @@
 
 * { box-sizing: border-box; }
 
+/* iOS enlarges text when a phone turns sideways; the table sizes itself instead. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
 /* A warm wooden market table: soft plank lines, grain, and a vignette at the edges. */
 body {
   margin: 0;

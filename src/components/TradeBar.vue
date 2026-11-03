@@ -92,7 +92,9 @@ function less(bean: BeanKey): void {
     </div>
 
     <div class="section get">
-      <h3>{{ bidWith ? `You get from ${bidWith}` : "You get" }}</h3>
+      <h3>
+        You get<small v-if="bidWith"> from {{ bidWith }}</small>
+      </h3>
       <div class="asks">
         <div
           v-for="bean in beans"
@@ -181,6 +183,7 @@ function less(bean: BeanKey): void {
 .trade { width: calc(var(--beans) * 50px + 24px); display: grid; gap: 6px; padding: 10px 12px; box-shadow: 0 10px 24px rgba(0, 0, 0, .4); }
 .section { display: grid; gap: 5px; }
 h3 { font-size: 14px; }
+h3 small { font-size: inherit; }
 .hint { font-family: "Plus Jakarta Sans", sans-serif; font-size: 11px; font-weight: 500; color: var(--muted); }
 /* Same columns as the asks below, so both rows line up. */
 .chips { display: grid; grid-template-columns: repeat(var(--beans), 1fr); gap: 2px; min-height: 50px; padding-top: 4px; align-items: center; justify-items: center; }
@@ -256,8 +259,9 @@ h3 { font-size: 14px; }
      of keyboard-key-sized buttons under its title. */
   .section { grid-template-columns: 62px minmax(0, 1fr); align-items: center; gap: 4px; }
   .trade { padding: 6px 8px; gap: 3px; }
-  .section.get { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  /* Both titles sit beside their rows, so the bar stays two rows high. */
   h3 { font-size: 12px; line-height: 1.2; white-space: nowrap; }
+  h3 small { display: block; font-family: "Plus Jakarta Sans", sans-serif; font-size: 10px; font-weight: 800; color: var(--muted); }
   .chips { min-height: 36px; padding-top: 0; }
   .chip, .ask img { max-width: 28px; }
   .chip-button, .ask { min-height: 44px; padding: 4px 1px; justify-self: stretch; }

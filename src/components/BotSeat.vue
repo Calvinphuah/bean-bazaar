@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue"
 import BeanCard from "./BeanCard.vue"
-import { coinText, coinsFor } from "../rules"
+import { coinText, coinWord, coinsFor } from "../rules"
 import { useRollingNumber } from "../useRollingNumber"
 import type { BeanKey, BeanType, TableSnapshot } from "../types"
 import type { QuoteAnswer, TradeCounter } from "../api"
@@ -103,7 +103,7 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
             class="coin-hop"
             src="/cards/coin.webp"
             alt=""
-          >{{ coinText(coins.shown.value) }}</span>
+          >{{ coins.shown.value }}<span class="coin-word">&nbsp;{{ coinWord(coins.shown.value) }}</span></span>
         </div>
       </div>
 
@@ -430,8 +430,11 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
   .side-top .bubble { top: calc(100% + 8px); left: 0; right: 0; width: auto; text-align: center; }
   .side-top .bubble::after { left: 50%; right: auto; top: auto; bottom: 100%; transform: translateX(-50%); border-right-color: transparent; border-bottom-color: var(--ink); }
   /* Over the bot's own fields, so the market stays clear; the trade bar has the trade buttons. */
-  .side-top .answer { top: auto; bottom: 0; left: 0; right: 0; min-height: 35px; transform: none; justify-content: center; white-space: normal; text-align: center; line-height: 1.15; border-radius: 10px; }
+  .side-top .answer { top: auto; bottom: -1px; left: 0; right: 0; min-height: 40px; transform: none; justify-content: center; white-space: normal; text-align: center; line-height: 1.15; border-radius: 10px; }
   .side-top .answer:has(.counter) { top: calc(100% + 4px); left: 50%; right: auto; transform: translateX(-50%); z-index: 6; }
+  /* A yes is the trade button itself, filling the reply's spot over the bot's fields. */
+  .side-top .answer:has(button) { padding: 0; background: none; box-shadow: none; }
+  .side-top .answer button { width: 100%; min-height: 40px; padding: 2px 6px; font-size: 11px; line-height: 1.1; white-space: normal; }
   .seat:first-child .answer:has(.counter) { left: 0; transform: none; }
   .seat:last-child .answer:has(.counter) { left: auto; right: 0; transform: none; }
 }
@@ -441,7 +444,7 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
 @media (orientation: landscape) and (max-height: 500px) {
   .seat.side-top { grid-template-rows: none; grid-template-columns: auto auto; justify-items: start; }
   /* Over the bot's own fields, so the market stays clear to pick from. */
-  .side-top .answer { top: 50%; bottom: auto; left: auto; right: -6px; max-width: 96px; transform: translateY(-50%); z-index: 6; white-space: normal; text-align: center; line-height: 1.15; }
+  .side-top .answer { top: 50%; bottom: auto; left: auto; right: -4px; width: 62px; min-height: 42px; justify-content: center; padding: 2px 4px; border-radius: 8px; font-size: 10px; transform: translateY(-50%); z-index: 6; white-space: normal; text-align: center; line-height: 1.1; }
   .side-top .answer:has(.counter) { top: 0; left: calc(100% + 6px); transform: none; }
 }
 </style>

@@ -35,7 +35,7 @@ const emit = defineEmits<{ leave: []; skip: []; tutorialDone: []; tutorial: []; 
 // (same queries as the CSS).
 const LAYOUTS = {
   table: { width: 1200, height: 820, query: "" },
-  portrait: { width: 390, height: 730, query: "(orientation: portrait) and (max-width: 1024px)" },
+  portrait: { width: 390, height: 750, query: "(orientation: portrait) and (max-width: 1024px)" },
   landscape: { width: 900, height: 420, query: "(orientation: landscape) and (max-height: 500px)" },
 }
 type Layout = keyof typeof LAYOUTS
@@ -56,11 +56,26 @@ function fitTable(): void {
   scale.value = Math.min(MAX_SCALE, fitWidth, fitHeight)
 }
 
+// iOS fires resize mid-turn, still reporting the old size, so fit again once the turn has settled.
+const ROTATE_SETTLE_MS = 350
+let settleTimer: ReturnType<typeof setTimeout> | null = null
+
+function refitTable(): void {
+  fitTable()
+  if (settleTimer) clearTimeout(settleTimer)
+  settleTimer = setTimeout(fitTable, ROTATE_SETTLE_MS)
+}
+
 onMounted(() => {
   fitTable()
-  window.addEventListener("resize", fitTable)
+  window.addEventListener("resize", refitTable)
+  window.addEventListener("orientationchange", refitTable)
 })
-onBeforeUnmount(() => window.removeEventListener("resize", fitTable))
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", refitTable)
+  window.removeEventListener("orientationchange", refitTable)
+  if (settleTimer) clearTimeout(settleTimer)
+})
 
 // Seat spots around the table, clockwise from your left, by number of bots.
 const SEAT_SPOTS: Record<number, string[]> = {
@@ -374,7 +389,7 @@ function ordinal(place: number): string {
           :bubble="bubbleFor(seat.index)"
           :answer="isDealing ? trade.answers.value[seat.index] ?? null : null"
           :counter="isDealing ? trade.counters.value[seat.index] ?? null : null"
-          :can-trade-with="!compact && isDealing && trade.answers.value[seat.index] === 'accept'"
+          :can-trade-with="layout !== 'landscape' && isDealing && trade.answers.value[seat.index] === 'accept'"
           :gift="trade.isGift.value"
           :side="!compact && (seat.spot === 'left' || seat.spot === 'right') ? seat.spot : 'top'"
           @trade="trade.tradeWith(seat.index)"
@@ -483,6 +498,7 @@ function ordinal(place: number): string {
             @decline="move({ type: 'decline_offer' })"
             @bid="bidOn(offer.give)"
           />
+          <!-- Upright, you trade by tapping the bot that said yes; sideways its seat is too narrow, so the bar has the buttons. -->
           <TradeBar
             v-else-if="isDealing"
             :gives="trade.gives.value"
@@ -491,7 +507,7 @@ function ordinal(place: number): string {
             :bean-types="beanTypes"
             :status="trade.status.value"
             :busy="busy"
-            :partners="trade.acceptors.value.map((index) => ({ index, name: nameOf(index) }))"
+            :partners="layout === 'portrait' ? [] : trade.acceptors.value.map((index) => ({ index, name: nameOf(index) }))"
             :gift="trade.isGift.value"
             @ask="trade.changeAsk"
             @remove="trade.removeGive"
@@ -1020,19 +1036,39 @@ function ordinal(place: number): string {
 @media (orientation: portrait) and (max-width: 1024px) {
   .topbar { grid-template-columns: minmax(0, 1fr) auto; }
   .topbar :deep(.brand) { display: none; }
-  /* Spread out when it all fits; a tall moment, like a trade, scrolls instead of overlapping. */
-  .felt { grid-template-rows: auto auto auto; align-content: space-evenly; gap: 4px; overflow-y: auto; }
+  /* Spare height is shared out between the rows; on a screen too short for the
+     table it scrolls instead of overlapping. Not space-evenly: that pushes the
+     overflow off the top, out of scroll reach. */
+  .felt { grid-template-rows: auto auto auto; align-content: stretch; gap: 4px; overflow-y: auto; }
   .seats { grid-row: 1; max-width: 100%; display: flex; justify-content: center; gap: 4px; padding: 2px 6px 0; }
+  /* Four plates only fit across with the coin icon standing in for the word. */
+  .seats:has(.seat:nth-child(4)) :deep(.coin-word) { display: none; }
+  /* A smaller face and name leave the hand count its own corner, off the bot's name. */
+  .seats:has(.seat:nth-child(4)) :deep(.plate) { padding-right: 22px; }
+  .seats:has(.seat:nth-child(4)) :deep(.avatar) { width: 24px; height: 24px; }
+  .seats:has(.seat:nth-child(4)) :deep(.who strong) { font-size: 12px; }
   /* Undo the desktop top-middle seat's side-by-side fields; in the strip every seat is alike. */
   .felt :deep(.seat.spot-top) { grid-template-rows: auto auto; grid-auto-flow: row; gap: 4px; }
-  .row { flex-direction: column; align-items: center; }
+  .row { flex-direction: column; align-items: center; gap: 6px; }
   /* While trading, the bar sits right under the market it trades with, so both stay in view; your fields follow. */
-  .action:has(.trade) { order: -1; }
+  .action:has(.trade), .action:has(.offer) { order: -1; }
+  /* A bot's offer shows the market cards it is giving, so it takes the market's place, right under the bots. */
+  .felt:has(.offer) .middle { display: none; }
   /* Your plate stands beside your fields rather than over them, to save height. */
   .farm-side { grid-auto-flow: column; align-items: center; gap: 8px; }
   .plate-row { flex-direction: column; max-width: 90px; }
   .my-plate { flex-direction: column; gap: 0; padding: 6px 10px; border-radius: 14px; text-align: center; }
   .action { width: 100%; padding: 0 10px; justify-items: center; }
+  /* One row, what to do beside the cards, so the bots stay in view while you
+     plant; the title says the rest of the rule. */
+  .pending { grid-template-columns: minmax(0, 1fr) auto; column-gap: 10px; align-items: center; }
+  .pending-body { display: contents; }
+  .pending-head { flex-wrap: wrap; justify-content: flex-start; }
+  .pending-head strong { font-size: 15px; line-height: 1.15; }
+  .pending-rule { display: none; }
+  .pending-cards { grid-column: 2; grid-row: 1 / span 2; max-width: 182px; justify-content: flex-end; padding: 6px 0 10px; }
+  .pending-cards :deep(.card.small) { width: 54px; }
+  .pending-hint { font-size: 12px; line-height: 1.3; }
 }
 
 /* A phone on its side: the bots down the left, the market, then your farm
