@@ -432,7 +432,7 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
 @media (orientation: portrait) and (max-width: 1024px) {
   .side-top .bubble { top: calc(100% + 8px); left: 0; right: 0; width: auto; text-align: center; }
   .side-top .bubble::after { left: 50%; right: auto; top: auto; bottom: 100%; transform: translateX(-50%); border-right-color: transparent; border-bottom-color: var(--ink); }
-  /* Over the bot's own fields, so the market stays clear; the trade bar has the trade buttons. */
+  /* Over the bot's own fields, so the market stays clear; a yes is the trade button itself. */
   .side-top .answer { top: auto; bottom: -1px; left: 0; right: 0; min-height: 40px; transform: none; justify-content: center; white-space: normal; text-align: center; line-height: 1.15; border-radius: 10px; }
   .side-top .answer:has(.counter) { top: calc(100% + 4px); left: 50%; right: auto; transform: translateX(-50%); z-index: 6; }
   /* A yes is the trade button itself, filling the reply's spot over the bot's fields. */
