@@ -8,7 +8,7 @@ The site lives at `bean-bazaar.calvinphuah.com`.
 
 1. Sign in at https://dash.cloudflare.com.
 2. Go to **Workers & Pages**, then **Create**, then the **Pages** tab, then **Connect to Git**.
-3. Allow Cloudflare to read the `Calvinphuah/bean-bazaar-play` GitHub repo, then pick it.
+3. Allow Cloudflare to read the `Calvinphuah/bean-bazaar` GitHub repo, then pick it.
 4. Fill in the build settings:
    - **Project name:** `bean-bazaar-play`. This gives the site the address `bean-bazaar-play.pages.dev`.
    - **Production branch:** `main`

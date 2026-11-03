@@ -833,7 +833,9 @@ function ordinal(place: number): string {
 .me { position: relative; z-index: 3; display: grid; gap: 6px; padding: 0 24px; }
 .row { display: flex; gap: 28px; align-items: flex-end; justify-content: center; }
 .my-spot { grid-row: 3; z-index: 2; padding-bottom: 8px; }
-.farm-side { display: grid; gap: 10px; justify-items: center; }
+/* Your plate sits beside your fields, not above them: stacked, they ran into the
+   market on a desktop table. */
+.farm-side { display: grid; grid-auto-flow: column; gap: 14px; align-items: center; justify-items: center; }
 .farm { display: flex; gap: 10px; align-items: stretch; }
 .buy-field {
   width: 110px;
@@ -846,7 +848,7 @@ function ordinal(place: number): string {
   font-size: 14px;
 }
 .action { min-width: 320px; display: grid; gap: 10px; align-content: center; justify-items: start; }
-.plate-row { display: flex; gap: 8px; align-items: center; }
+.plate-row { display: flex; flex-direction: column; gap: 8px; align-items: center; }
 .coin-hop { animation: coin-hop .3s var(--ease-bounce); }
 @keyframes coin-hop { 40% { transform: translateY(-6px) scale(1.15) rotate(-8deg); } }
 .my-plate {
@@ -1046,7 +1048,9 @@ function ordinal(place: number): string {
   .row { align-items: center; }
   .action { width: 272px; }
   /* Your column is the tallest sideways, so the leftover-cards note stays one plate high. */
-  .farm-side { gap: 4px; }
+  /* Sideways there is height to spare but no width, so the plate goes back on top. */
+  .farm-side { grid-auto-flow: row; gap: 4px; }
+  .plate-row { flex-direction: row; }
   .locked { flex-wrap: nowrap; padding: 3px 8px; }
   .locked :deep(.card.mini) { width: 22px; padding: 1px; border-radius: 3px; }
 }

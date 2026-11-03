@@ -6,7 +6,7 @@
 
 A bean-trading card game for 1 player against 2 to 4 bots, right in your browser.
 
-[![Bean Bazaar trailer: click to watch](docs/media/trailer-preview.gif)](#watch-the-trailer)
+[![A real turn: plant a bean, flip two cards, then take a gift from Pinto](docs/media/gameplay.gif)](https://bean-bazaar.calvinphuah.com)
 
 ### [▶ Play free in your browser](https://bean-bazaar.calvinphuah.com) · [🎬 Watch the trailer](#watch-the-trailer)
 
@@ -21,28 +21,31 @@ https://github.com/user-attachments/assets/26a68a9e-3174-4e5e-a48a-ec110c18f053
 ## Meet the beans
 
 <p align="center">
-  <img src="public/cards/blue-240.webp" width="120" alt="Blue Bean">
-  <img src="public/cards/chili-240.webp" width="120" alt="Chili Bean">
-  <img src="public/cards/stink-240.webp" width="120" alt="Stink Bean">
-  <img src="public/cards/soy-240.webp" width="120" alt="Soy Bean">
-  <img src="public/cards/red-240.webp" width="120" alt="Red Bean">
-  <img src="public/cards/golden-240.webp" width="120" alt="Golden Bean">
+  <img src="public/cards/blue-240.webp" width="100" alt="Blue Bean">
+  <img src="public/cards/chili-240.webp" width="100" alt="Chili Bean">
+  <img src="public/cards/stink-240.webp" width="100" alt="Stink Bean">
+  <img src="public/cards/green-240.webp" width="100" alt="Green Bean">
+  <img src="public/cards/soy-240.webp" width="100" alt="Soy Bean">
+  <br>
+  <img src="public/cards/black_eyed-240.webp" width="100" alt="Black-eyed Bean">
+  <img src="public/cards/red-240.webp" width="100" alt="Red Bean">
+  <img src="public/cards/wax-240.webp" width="100" alt="Wax Bean">
+  <img src="public/cards/coffee-240.webp" width="100" alt="Coffee Bean">
+  <img src="public/cards/golden-240.webp" width="100" alt="Golden Bean">
 </p>
 
-Ten hand-painted beans, from the Blue Bean playing sax in the rain to the Golden Bean lounging on a velvet cushion. There are only four Golden beans in the deck.
+Ten beans, each with its own character, from the Blue Bean playing sax in the rain to the Chili Bean bundled up against the snow.
 
 ## How it plays
 
-![A game in progress: Lima offers a Green bean for one of your beans](docs/media/table.jpg)
+![Your turn in a game against Pinto and Lima: plant the Black-eyed bean](docs/media/table.jpg)
 
-- **Plant.** Every turn you must plant the front card of your hand. You may plant the next card too. You can never reorder your hand.
-- **Fields.** Each field grows one bean type. A third field costs 3 coins.
-- **Harvest.** Bigger piles pay more coins. You can't harvest a field holding just 1 bean while another field has more.
-- **Flip and trade.** After planting, flip 2 cards from the deck and trade them, or cards from your hand, with the bots. Whatever you get or keep must be planted.
-- **Bot turns.** Bots offer you deals on their turns. You can take the deal, turn it down, or make your own offer.
-- **Seasons.** Each time the deck runs out, a new season starts. The game ends when the third season's deck runs out, and the most coins wins.
+- **Plant** the front card of your hand every turn, and the next one if you like. You can never reorder your hand.
+- **Trade** the two cards you flip, or cards from your hand, with the bots. Whatever you get must be planted.
+- **Harvest** a field for coins. Each field grows one bean type, and bigger piles pay more.
+- **Win** with the most coins when the deck runs out for the third time.
 
-Press **Rules** in the game for a guided tour.
+Press **Rules** in the game for a guided tour of every rule.
 
 ## The bots
 
@@ -107,5 +110,5 @@ The site is static files, so any static host works. See [docs/cloudflare-pages.m
 ## Credits
 
 - Sound effects: "Casino Audio" by [Kenney](https://www.kenney.nl), CC0.
-- Card and character art made for this game.
+- Card and character art: AI-generated for this game.
 - Trailer music and sound: see [trailer/public/audio/CREDITS.txt](trailer/public/audio/CREDITS.txt).
