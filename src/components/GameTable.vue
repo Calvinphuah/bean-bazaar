@@ -1039,8 +1039,9 @@ function ordinal(place: number): string {
   /* Spare height is shared out between the rows; on a screen too short for the
      table it scrolls instead of overlapping. Not space-evenly: that pushes the
      overflow off the top, out of scroll reach. */
-  .felt { grid-template-rows: auto auto auto; align-content: stretch; gap: 4px; overflow-y: auto; }
-  .seats { grid-row: 1; max-width: 100%; display: flex; justify-content: center; gap: 4px; padding: 2px 6px 0; }
+  .felt { grid-template-rows: auto auto auto; align-content: stretch; gap: 1px; overflow-y: auto; }
+  /* Room on top for the hand-count badges, which stick up past the plates and would be clipped by the felt. */
+  .seats { grid-row: 1; max-width: 100%; display: flex; justify-content: center; gap: 4px; padding: 9px 6px 0; }
   /* Four plates only fit across with the coin icon standing in for the word. */
   .seats:has(.seat:nth-child(4)) :deep(.coin-word) { display: none; }
   /* A smaller face and name leave the hand count its own corner, off the bot's name. */
