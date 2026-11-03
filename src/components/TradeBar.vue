@@ -128,7 +128,10 @@ function less(bean: BeanKey): void {
             :aria-label="`Ask for one less ${bean.name} bean`"
             @click="less(bean.key)"
           >
-            −
+            <span
+              class="less-bar"
+              aria-hidden="true"
+            />
           </button>
         </div>
       </div>
@@ -207,6 +210,8 @@ h3 small { font-size: inherit; }
   background: var(--panel);
   box-shadow: none;
 }
+/* Drawn, not typed: a text minus sits wherever the font puts it, rarely the middle of the circle. */
+.less-bar { width: 8px; height: 2px; border-radius: 1px; background: currentColor; }
 .ask { position: relative; display: grid; justify-items: center; gap: 2px; padding: 3px; border-radius: 8px; transition: background .15s ease; }
 .ask:hover { background: var(--panel-dark); }
 .ask.chosen { background: #cfe9c5; }
@@ -247,7 +252,7 @@ h3 small { font-size: inherit; }
   .ask-count { right: 0; font-size: 10px; padding: 0 4px; }
   /* A tab centred on the card's bottom edge, away from the count and inside its own column however narrow.
      Centred by margin, not transform, which a pressed button uses. */
-  .less { width: 20px; height: 20px; top: auto; bottom: -4px; left: 50%; margin-left: -10px; font-size: 14px; }
+  .less { width: 20px; height: 20px; top: auto; bottom: -4px; left: 50%; margin-left: -10px; }
   .footer { flex-wrap: wrap; justify-content: flex-end; }
   .status { font-size: 12px; }
   /* Up to four partners stay on one row above the buttons instead of wrapping under them. */

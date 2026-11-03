@@ -422,8 +422,14 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
   .worth img { width: 10px; }
   .bubble { max-width: 170px; font-size: 12px; padding: 5px 9px; }
   .answer { font-size: 12px; padding: 3px 8px; }
-  /* Inked like the game's buttons, so a reply reads as a sticker on the table rather than a faint label. */
-  .answer:not(:has(button)):not(:has(.counter)) { border: 2px solid var(--ink); box-shadow: 0 2px 0 var(--ink); }
+  /* A reply is the bot speaking, like its desktop speech bubble: white and inked, its tail on
+     the bot, the words coloured by the answer. A yes you can act on stays a gold button. */
+  .answer:not(:has(button)):not(:has(.counter)) { background: #fff; border: 2px solid var(--ink); border-radius: 10px; box-shadow: 0 3px 0 rgba(30, 14, 4, .45); }
+  /* Under the bot's face, which is who is speaking, clear of its coin count. */
+  .answer:not(:has(button)):not(:has(.counter))::after { content: ""; position: absolute; left: 10px; bottom: 100%; border: 6px solid transparent; border-top: 0; border-bottom: 7px solid var(--ink); }
+  .answer.accept:not(:has(button)) { color: var(--ok); }
+  .answer.decline:not(:has(.counter)) { color: var(--accent); }
+  .answer.missing { color: var(--muted); }
   .answer button { padding: 4px 8px; font-size: 11px; }
 }
 
@@ -449,5 +455,7 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
   /* Over the bot's own fields, so the market stays clear to pick from. */
   .side-top .answer { top: 50%; bottom: auto; left: auto; right: -4px; width: 62px; min-height: 38px; justify-content: center; padding: 2px 4px; border-radius: 8px; font-size: 10px; transform: translateY(-50%); z-index: 6; white-space: normal; text-align: center; line-height: 1.1; }
   .side-top .answer:has(.counter) { top: 0; left: calc(100% + 6px); transform: none; }
+  /* The plate is to the left, so the tail points left. */
+  .answer:not(:has(button)):not(:has(.counter))::after { left: auto; right: 100%; bottom: auto; top: 50%; margin-top: -6px; border: 6px solid transparent; border-left: 0; border-right: 7px solid var(--ink); }
 }
 </style>
