@@ -1,0 +1,5 @@
+node_modules
+out
+.engine
+.game-dist
+public/footage
