@@ -6,7 +6,7 @@
 
 A bean-trading card game for 1 player against 2 to 4 bots, right in your browser.
 
-[![Bean Bazaar trailer: click to watch](docs/media/trailer-preview.gif)](#watch-the-trailer)
+[![Planting, trading and harvesting in Bean Bazaar](docs/media/gameplay.gif)](#watch-the-trailer)
 
 ### [▶ Play free in your browser](https://bean-bazaar.calvinphuah.com) · [🎬 Watch the trailer](#watch-the-trailer)
 
@@ -21,28 +21,26 @@ https://github.com/user-attachments/assets/26a68a9e-3174-4e5e-a48a-ec110c18f053
 ## Meet the beans
 
 <p align="center">
-  <img src="public/cards/blue-240.webp" width="120" alt="Blue Bean">
-  <img src="public/cards/chili-240.webp" width="120" alt="Chili Bean">
-  <img src="public/cards/stink-240.webp" width="120" alt="Stink Bean">
-  <img src="public/cards/soy-240.webp" width="120" alt="Soy Bean">
-  <img src="public/cards/red-240.webp" width="120" alt="Red Bean">
-  <img src="public/cards/golden-240.webp" width="120" alt="Golden Bean">
+  <img src="public/cards/blue-240.webp" width="110" alt="Blue Bean">
+  <img src="public/cards/chili-240.webp" width="110" alt="Chili Bean">
+  <img src="public/cards/stink-240.webp" width="110" alt="Stink Bean">
+  <img src="public/cards/soy-240.webp" width="110" alt="Soy Bean">
+  <img src="public/cards/red-240.webp" width="110" alt="Red Bean">
+  <img src="public/cards/wax-240.webp" width="110" alt="Wax Bean">
 </p>
 
-Ten hand-painted beans, from the Blue Bean playing sax in the rain to the Golden Bean lounging on a velvet cushion. There are only four Golden beans in the deck.
+Every bean is hand-painted, from the Blue Bean playing sax in the rain to the Chili Bean bundled up against the snow.
 
 ## How it plays
 
-![A game in progress: Lima offers a Green bean for one of your beans](docs/media/table.jpg)
+![Your turn in a game against Pinto and Lima: plant the Black-eyed bean](docs/media/table.jpg)
 
-- **Plant.** Every turn you must plant the front card of your hand. You may plant the next card too. You can never reorder your hand.
-- **Fields.** Each field grows one bean type. A third field costs 3 coins.
-- **Harvest.** Bigger piles pay more coins. You can't harvest a field holding just 1 bean while another field has more.
-- **Flip and trade.** After planting, flip 2 cards from the deck and trade them, or cards from your hand, with the bots. Whatever you get or keep must be planted.
-- **Bot turns.** Bots offer you deals on their turns. You can take the deal, turn it down, or make your own offer.
-- **Seasons.** Each time the deck runs out, a new season starts. The game ends when the third season's deck runs out, and the most coins wins.
+- **Plant** the front card of your hand every turn, and the next one if you like. You can never reorder your hand.
+- **Trade** the two cards you flip, or cards from your hand, with the bots. Whatever you get must be planted.
+- **Harvest** a field for coins. Each field grows one bean type, and bigger piles pay more.
+- **Win** with the most coins when the deck runs out for the third time.
 
-Press **Rules** in the game for a guided tour.
+Press **Rules** in the game for a guided tour of every rule.
 
 ## The bots
 
