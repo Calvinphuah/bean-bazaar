@@ -6,13 +6,17 @@
 
 A bean-trading card game for 1 player against 2 to 4 bots, right in your browser.
 
-[![Bean Bazaar trailer: click to watch](docs/media/trailer-preview.gif)](docs/media/trailer.mp4)
+[![Bean Bazaar trailer: click to watch](docs/media/trailer-preview.gif)](#watch-the-trailer)
 
-### [▶ Play free in your browser](https://bean-bazaar.calvinphuah.com) · [🎬 Watch the trailer](docs/media/trailer.mp4)
+### [▶ Play free in your browser](https://bean-bazaar.calvinphuah.com) · [🎬 Watch the trailer](#watch-the-trailer)
 
 No download, no sign-up. Your game saves in the browser, so a reload picks it up where you left it.
 
 </div>
+
+## Watch the trailer
+
+https://github.com/user-attachments/assets/26a68a9e-3174-4e5e-a48a-ec110c18f053
 
 ## Meet the beans
 
