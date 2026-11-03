@@ -21,15 +21,20 @@ https://github.com/user-attachments/assets/26a68a9e-3174-4e5e-a48a-ec110c18f053
 ## Meet the beans
 
 <p align="center">
-  <img src="public/cards/blue-240.webp" width="110" alt="Blue Bean">
-  <img src="public/cards/chili-240.webp" width="110" alt="Chili Bean">
-  <img src="public/cards/stink-240.webp" width="110" alt="Stink Bean">
-  <img src="public/cards/soy-240.webp" width="110" alt="Soy Bean">
-  <img src="public/cards/red-240.webp" width="110" alt="Red Bean">
-  <img src="public/cards/golden-240.webp" width="110" alt="Golden Bean">
+  <img src="public/cards/blue-240.webp" width="100" alt="Blue Bean">
+  <img src="public/cards/chili-240.webp" width="100" alt="Chili Bean">
+  <img src="public/cards/stink-240.webp" width="100" alt="Stink Bean">
+  <img src="public/cards/green-240.webp" width="100" alt="Green Bean">
+  <img src="public/cards/soy-240.webp" width="100" alt="Soy Bean">
+  <br>
+  <img src="public/cards/black_eyed-240.webp" width="100" alt="Black-eyed Bean">
+  <img src="public/cards/red-240.webp" width="100" alt="Red Bean">
+  <img src="public/cards/wax-240.webp" width="100" alt="Wax Bean">
+  <img src="public/cards/coffee-240.webp" width="100" alt="Coffee Bean">
+  <img src="public/cards/golden-240.webp" width="100" alt="Golden Bean">
 </p>
 
-Every bean is hand-painted, from the Blue Bean playing sax in the rain to the Chili Bean bundled up against the snow.
+All ten beans are hand-painted, from the Blue Bean playing sax in the rain to the Chili Bean bundled up against the snow.
 
 ## How it plays
 
