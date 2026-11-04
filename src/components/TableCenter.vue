@@ -238,6 +238,11 @@ const deckStyle = computed(() => {
   .face-up { gap: 8px; min-height: 120px; min-width: 164px; }
 }
 
+/* Upright, the bots' replies hang just above the piles, so each count sits inside its pile's corner instead of poking up under them. */
+@media (orientation: portrait) and (max-width: 1024px) {
+  .count { top: 4px; }
+}
+
 /* On its side the phone is short, so the flipped cards sit under the deck. */
 @media (orientation: landscape) and (max-height: 500px) {
   /* Room for a picked card's lift and glow, so it never covers the season bar. */
