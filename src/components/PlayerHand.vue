@@ -134,7 +134,7 @@ function onPointerDown(event: PointerEvent): void {
           <div
             v-if="beanTypes[bean]"
             class="slot"
-            :class="{ front: index === 0, dragging: index === 0 && dragging, peek: peeked === index && !dragging }"
+            :class="{ front: index === 0, dragging: index === 0 && dragging, peek: peeked === index && !dragging, picked: pickable && picked.includes(index) }"
             :style="slotStyle(position)"
             @pointerdown="peek($event, index)"
             @mouseenter="!dragging && emit('point', bean)"
@@ -198,6 +198,8 @@ function onPointerDown(event: PointerEvent): void {
 @media (hover: hover) { .slot:hover { transform: translateY(-46px); z-index: 50 !important; } }
 /* Above the swap button too, since a lifted card is being read. */
 .slot.peek { transform: translateY(-34px); z-index: 70 !important; }
+/* A card picked to trade comes out from under its neighbours, so its whole highlight shows. */
+.slot.picked { z-index: 55 !important; }
 .tilt { position: relative; transform-origin: 50% 130%; transition: transform .2s ease; }
 .next {
   position: absolute;
@@ -213,7 +215,10 @@ function onPointerDown(event: PointerEvent): void {
   padding: 1px 8px;
   border-radius: 999px;
   border: 2px solid var(--ink);
+  transition: top .15s ease;
 }
+/* Rises with a picked card (BeanCard lifts it 12px), so the tag never covers the bean's name. */
+.slot.picked .next { top: -26px; }
 /* The front card can't be planted right now, so its tag stops shouting. */
 .next.waiting { background: var(--panel-dark); color: var(--ink); }
 .grabbable { cursor: grab; touch-action: none; -webkit-touch-callout: none; }
