@@ -1110,6 +1110,9 @@ function ordinal(place: number): string {
   .plate-row { flex-direction: column; max-width: 90px; }
   .my-plate { flex-direction: column; gap: 0; padding: 6px 10px; border-radius: 14px; text-align: center; }
   .action { width: 100%; padding: 0 10px; justify-items: center; }
+  /* The felt shares its spare height out between rows, so the Undo and Flip row
+     keeps its room even while empty; otherwise the whole table jumps when it appears. */
+  .action:not(:has(.trade, .offer, .pending)) .buttons { min-height: 44px; }
   /* One row, what to do beside the cards, so the bots stay in view while you
      plant; the title says the rest of the rule. */
   .pending { grid-template-columns: minmax(0, 1fr) auto; column-gap: 10px; align-items: center; }
