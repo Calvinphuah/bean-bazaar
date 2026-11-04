@@ -14,6 +14,7 @@ import TradeBar from "./TradeBar.vue"
 import TutorialGuide from "./TutorialGuide.vue"
 import { setCardDragImage, startTouchDrag } from "../dragImage"
 import { MAX_FIELDS, MAX_HAND_PLANTS, THIRD_FIELD_PRICE, accepts, addressYou, canHarvest, coinText, listNames } from "../rules"
+import { useHoldToPeek } from "../useHoldToPeek"
 import { useRollingNumber } from "../useRollingNumber"
 import { useTrade } from "../useTrade"
 import type { BeanKey, BeanType, FieldState, GameState, LogEvent, Move, PlayerState, TableSnapshot } from "../types"
@@ -87,9 +88,14 @@ const SEAT_SPOTS: Record<number, string[]> = {
 const showLog = ref(false)
 const showTools = ref(false)
 const showPayouts = ref(false)
+// One mis-tap in the menu would throw away the game, so leaving asks first.
+const confirmLeave = ref(false)
 const pickedPending = ref<number | null>(null)
 // The bean under the pointer in your hand, a field, the market or the trade bar, shown big with its coin row.
 const pointedBean = ref<BeanKey | null>(null)
+// The card a finger is resting on; on a phone this is the only way the preview opens.
+const hold = useHoldToPeek()
+const shownBean = computed(() => hold.held.value ?? pointedBean.value)
 
 const beanTypes = computed<Record<string, BeanType>>(() =>
   Object.fromEntries(props.game.bean_types.map((bean) => [bean.key, bean])),
@@ -99,8 +105,8 @@ const me = computed(() => props.game.players[you.value])
 const myTable = computed(() => props.table.players[you.value])
 const hand = computed<BeanKey[]>(() => me.value?.hand ?? [])
 const frontCard = computed(() => hand.value[0] ?? null)
-const pointedType = computed(() => (pointedBean.value ? beanTypes.value[pointedBean.value] : undefined))
-const pointedCopies = computed(() => hand.value.filter((bean) => bean === pointedBean.value).length)
+const pointedType = computed(() => (shownBean.value ? beanTypes.value[shownBean.value] : undefined))
+const pointedCopies = computed(() => hand.value.filter((bean) => bean === shownBean.value).length)
 const myFields = computed<FieldState[]>(() => myTable.value?.fields ?? [])
 const myCoins = useRollingNumber(() => myTable.value?.coins ?? 0)
 
@@ -125,9 +131,12 @@ const canPlantFromHand = computed(() =>
 const canFlip = computed(() =>
   live.value && myTurn.value && props.game.phase === "plant" && (props.game.hand_plants > 0 || hand.value.length === 0),
 )
-const isTrading = computed(() => live.value && myTurn.value && props.game.phase === "trade" && !props.game.offer)
+// Not tied to `busy`: the trade stays open while a move sends, so a refused trade
+// keeps your picks; its buttons wait on `busy` instead.
+const tradeOpen = computed(() => !props.replaying && !props.game.over)
+const isTrading = computed(() => tradeOpen.value && myTurn.value && props.game.phase === "trade" && !props.game.offer)
 // On a bot's turn, after turning its offer down to make your own.
-const isBidding = computed(() => live.value && props.game.bidding)
+const isBidding = computed(() => tradeOpen.value && props.game.bidding)
 const isDealing = computed(() => isTrading.value || isBidding.value)
 // The trade bar's buttons can vanish under the pointer, so its preview closes with it.
 watch(isDealing, (dealing) => { if (!dealing) pointedBean.value = null })
@@ -212,7 +221,7 @@ const instruction = computed(() => {
     if (!myFields.value.some((field) => accepts(field, card))) return `No field can take your ${beanName(card)}: harvest a field first.`
     return `Drag your ${beanName(card)} onto a field, or press Plant here.`
   }
-  if (props.game.phase === "plant") return "Plant your next card too, or flip 2 cards to start trading."
+  if (props.game.phase === "plant") return "Plant one more card, or flip 2 cards to trade."
   return "Trade the flipped cards, or press Done trading to keep them. You plant what you keep."
 })
 
@@ -314,6 +323,8 @@ function ordinal(place: number): string {
   <div
     class="game"
     :style="{ zoom: scale }"
+    @pointerdown="hold.onPointerDown"
+    @contextmenu="hold.onContextMenu"
   >
     <header class="topbar">
       <BrandMark size="small" />
@@ -363,7 +374,7 @@ function ordinal(place: number): string {
         </button>
         <button
           class="tool"
-          @click="emit('leave')"
+          @click="confirmLeave = true"
         >
           New game
         </button>
@@ -397,6 +408,7 @@ function ordinal(place: number): string {
           :counter="isDealing ? trade.counters.value[seat.index] ?? null : null"
           :can-trade-with="layout !== 'landscape' && isDealing && trade.answers.value[seat.index] === 'accept'"
           :gift="trade.isGift.value"
+          :busy="busy"
           :side="!compact && (seat.spot === 'left' || seat.spot === 'right') ? seat.spot : 'top'"
           @trade="trade.tradeWith(seat.index)"
           @counter="trade.takeCounter(seat.index)"
@@ -410,7 +422,7 @@ function ordinal(place: number): string {
           :bean-types="beanTypes"
           :picked-face-up="trade.pickedFaceUp.value"
           :pickable="isDealing"
-          @pick="trade.toggleFaceUp"
+          @pick="busy || trade.toggleFaceUp($event)"
           @point="pointedBean = $event"
         />
       </div>
@@ -515,8 +527,8 @@ function ordinal(place: number): string {
             :busy="busy"
             :partners="layout === 'portrait' ? [] : trade.acceptors.value.map((index) => ({ index, name: nameOf(index) }))"
             :gift="trade.isGift.value"
-            @ask="trade.changeAsk"
-            @remove="trade.removeGive"
+            @ask="(bean, change) => busy || trade.changeAsk(bean, change)"
+            @remove="busy || trade.removeGive($event)"
             @point="pointedBean = $event"
             @clear="trade.clear"
             @done="move({ type: isBidding ? 'close_bids' : 'end_trading' })"
@@ -623,7 +635,7 @@ function ordinal(place: number): string {
         :pickable="isDealing"
         :picked="trade.pickedHand.value"
         :compact="compact"
-        @pick="trade.toggleHand"
+        @pick="busy || trade.toggleHand($event)"
         @point="pointedBean = $event"
       />
     </section>
@@ -632,6 +644,7 @@ function ordinal(place: number): string {
       <div
         v-if="pointedType"
         class="preview"
+        :class="{ held: !!hold.held.value }"
         aria-hidden="true"
       >
         <BeanCard
@@ -681,6 +694,31 @@ function ordinal(place: number): string {
             :bean="bean"
             size="full"
           />
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="confirmLeave"
+      class="overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Start a new game"
+      @click.self="confirmLeave = false"
+    >
+      <div class="panel leave">
+        <h2>Start a new game?</h2>
+        <p>This game ends and can't be picked up again.</p>
+        <div class="leave-buttons">
+          <button
+            class="secondary"
+            @click="confirmLeave = false"
+          >
+            Keep playing
+          </button>
+          <button @click="confirmLeave = false; emit('leave')">
+            New game
+          </button>
         </div>
       </div>
     </div>
@@ -811,7 +849,8 @@ function ordinal(place: number): string {
 }
 @keyframes turn { 30%, 70% { transform: rotate(-90deg); } }
 
-.topbar { position: relative; z-index: 15; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding: 10px 20px; }
+/* Above the open log, so the phone menu that drops down over it can still be seen. */
+.topbar { position: relative; z-index: 21; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding: 10px 20px; }
 .tools { justify-self: end; display: flex; gap: 2px; white-space: nowrap; }
 /* Menu items, not game actions: plain text so the phase tracker leads the bar. */
 .tool { background: none; border: 0; box-shadow: none; padding: 6px 10px; border-radius: 8px; color: #fff6dc; font-size: 14px; text-shadow: 0 1px 0 rgba(0, 0, 0, .45); }
@@ -970,6 +1009,8 @@ function ordinal(place: number): string {
   pointer-events: none;
 }
 .preview p { margin: 0; color: var(--ink); padding: 2px 10px; border-radius: 999px; background: var(--panel); border: 2px solid var(--ink); font-size: 12px; font-weight: 800; }
+/* A held card shows in the middle of a dimmed screen, clear of the finger holding it. */
+.preview.held { display: grid; inset: 0; align-content: center; background: rgba(30, 14, 4, .45); }
 .peek-enter-active, .peek-leave-active { transition: opacity .15s ease, transform .15s ease; }
 .peek-enter-from, .peek-leave-to { opacity: 0; transform: translateY(12px); }
 .log-spot { position: fixed; right: 16px; top: 60px; z-index: 20; }
@@ -977,6 +1018,9 @@ function ordinal(place: number): string {
 .payouts { width: min(980px, 100%); max-height: 90vh; overflow-y: auto; display: grid; gap: 12px; padding: 20px; }
 .payouts-header { display: flex; justify-content: space-between; align-items: center; }
 .payouts p { margin: 0; }
+.leave { width: min(360px, 100%); display: grid; gap: 10px; padding: 20px; text-align: center; }
+.leave p { margin: 0; }
+.leave-buttons { display: flex; justify-content: center; gap: 10px; }
 .payout-cards { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
 .result { position: relative; width: min(460px, 100%); display: grid; gap: 14px; padding: 26px 24px 24px; text-align: center; }
 .result.won { box-shadow: 0 0 0 4px var(--gold), 0 0 60px rgba(246, 201, 56, .55), 0 18px 40px rgba(0, 0, 0, .6); animation: cheer .6s ease-out; }
@@ -1066,6 +1110,9 @@ function ordinal(place: number): string {
   .plate-row { flex-direction: column; max-width: 90px; }
   .my-plate { flex-direction: column; gap: 0; padding: 6px 10px; border-radius: 14px; text-align: center; }
   .action { width: 100%; padding: 0 10px; justify-items: center; }
+  /* The felt shares its spare height out between rows, so the Undo and Flip row
+     keeps its room even while empty; otherwise the whole table jumps when it appears. */
+  .action:not(:has(.trade, .offer, .pending)) .buttons { min-height: 44px; }
   /* One row, what to do beside the cards, so the bots stay in view while you
      plant; the title says the rest of the rule. */
   .pending { grid-template-columns: minmax(0, 1fr) auto; column-gap: 10px; align-items: center; }

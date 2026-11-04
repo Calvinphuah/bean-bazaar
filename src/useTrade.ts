@@ -89,6 +89,8 @@ export function useTrade(game: Ref<GameState | null>, isTrading: Ref<boolean>, i
   }
 
   function clear(): void {
+    // A quote still on its way would otherwise fill the seats back in for an empty offer.
+    quoteRequest += 1
     pickedFaceUp.value = []
     pickedHand.value = []
     asks.value = {}
@@ -138,6 +140,7 @@ export function useTrade(game: Ref<GameState | null>, isTrading: Ref<boolean>, i
   async function refreshQuote(): Promise<void> {
     const current = game.value
     if (!current || !isTrading.value || !hasOffer.value) {
+      quoteRequest += 1
       answers.value = {}
       counters.value = {}
       quoting.value = false

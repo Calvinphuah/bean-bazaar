@@ -121,9 +121,12 @@ const deckStyle = computed(() => {
       data-tour="face-up"
     >
       <TransitionGroup name="flip">
-        <template
+        <!-- One steady wrapper per card: when trading opens and the card turns into a
+             button, swapping the element itself would replay the flip beside the old card. -->
+        <span
           v-for="(bean, index) in table.face_up"
           :key="`${bean}-${index}`"
+          class="face-card"
         >
           <button
             v-if="beanTypes[bean] && pickable"
@@ -147,7 +150,7 @@ const deckStyle = computed(() => {
             @mouseenter="emit('point', bean)"
             @mouseleave="emit('point', null)"
           />
-        </template>
+        </span>
       </TransitionGroup>
     </div>
   </div>
@@ -203,6 +206,7 @@ const deckStyle = computed(() => {
 
 /* Room for two cards even before the flip, so the deck doesn't jump sideways. */
 .face-up { display: flex; gap: 14px; min-height: 160px; min-width: 238px; justify-content: center; align-items: center; }
+.face-card { display: flex; }
 
 /* Each flipped card hops off the deck, turns face up mid-air and settles. */
 .flip-enter-active { animation: hop .6s var(--ease-bounce) both; }

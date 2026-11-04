@@ -93,7 +93,7 @@ function onDrop(): void {
       <!-- The instruction names the bean; the button just says where it goes. -->
       <button
         v-if="plantLabel"
-        class="small"
+        class="small reach"
         :aria-label="plantLabel"
         @click="emit('plant')"
       >
@@ -101,7 +101,7 @@ function onDrop(): void {
       </button>
       <button
         v-if="beanType"
-        class="small secondary"
+        class="small secondary reach"
         :disabled="!canHarvest"
         :title="canHarvest ? '' : 'Harvest a field with more beans first'"
         @click="emit('harvest')"
@@ -184,8 +184,11 @@ function onDrop(): void {
 }
 /* Upright, a field with both buttons is the tallest thing on the table, so they slim down. */
 @media (orientation: portrait) and (max-width: 1024px) {
-  .actions { gap: 4px; }
+  /* Room for both buttons even when one is hidden, so the field keeps its height and the table doesn't shift as Plant here comes and goes. */
+  .actions { gap: 4px; min-height: 58px; justify-content: flex-end; }
   .actions button { padding: 4px 10px; }
+  /* Three lines once a pile is worth coins (its worth over a two-line next payout), so room for them from the start. */
+  .info { min-height: 43px; }
 }
 /* A phone on its side is short, so the next-payout line stays on one line,
    in a field wide enough to hold it. */

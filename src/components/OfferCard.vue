@@ -124,14 +124,14 @@ const canGiveAny = computed(() => props.offer.choices.some((bean) => props.hand.
 
     <div class="buttons">
       <button
-        class="secondary"
+        class="secondary reach"
         :disabled="busy"
         @click="emit('decline')"
       >
         No thanks
       </button>
       <button
-        class="secondary"
+        class="secondary reach"
         :disabled="busy"
         @click="emit('bid')"
       >
@@ -139,6 +139,7 @@ const canGiveAny = computed(() => props.offer.choices.some((bean) => props.hand.
       </button>
       <button
         v-if="!hasChoices"
+        class="reach"
         :disabled="busy || !canAccept"
         @click="emit('accept')"
       >

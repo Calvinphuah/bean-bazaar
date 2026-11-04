@@ -15,7 +15,7 @@ const STEPS: { target: string; title: string; body: string; touchBody?: string }
     target: "hand",
     title: "Reading a card",
     body: "The big number in the corner is how many of that bean are in the deck. Fewer copies means a rarer bean that pays more. Point at a card to see it big: the number under each coin stack is how many beans you need to harvest for that many coins.",
-    touchBody: "The big number in the corner is how many of that bean are in the deck. Fewer copies means a rarer bean that pays more. Tap a card in your hand to lift it out. Payouts in the ☰ menu shows how many beans each coin needs.",
+    touchBody: "The big number in the corner is how many of that bean are in the deck. Fewer copies means a rarer bean that pays more. Hold your finger on any card to see it big: the number under each coin stack is how many beans you need to harvest for that many coins.",
   },
   {
     target: "fields",

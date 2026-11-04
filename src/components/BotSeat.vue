@@ -24,6 +24,8 @@ const props = defineProps<{
   canTradeWith: boolean
   // Your offer asks for nothing back, so the button says give instead of trade.
   gift: boolean
+  // A move is sending, so the trade buttons wait for it.
+  busy: boolean
   // Which edge of the table the bot sits on; its fields face the middle.
   side: "left" | "right" | "top"
 }>()
@@ -164,6 +166,7 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
       <button
         v-if="answer === 'accept' && canTradeWith"
         class="small"
+        :disabled="busy"
         :aria-label="`${gift ? 'Give to' : 'Trade with'} ${name}`"
         @click="emit('trade')"
       >
@@ -189,6 +192,7 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
                 class="chip"
                 :src="`/cards/${bean}-240.webp`"
                 :alt="beanTypes[bean]?.name ?? bean"
+                :data-bean="bean"
               >
               <!-- An empty side keeps the box's shape and says plainly that nothing comes back. -->
               <span
@@ -199,7 +203,8 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
           </div>
         </div>
         <button
-          class="small"
+          class="small reach"
+          :disabled="busy"
           :aria-label="`Take ${name}'s deal: ${counterText}`"
           @click="emit('counter')"
         >
@@ -381,7 +386,7 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
 .side-left .answer { left: 0; transform: none; }
 .side-right .answer { left: auto; right: 0; transform: none; }
 .answer.accept { background: #cfe9c5; }
-.answer:has(button) { padding: 0; background: none; box-shadow: none; }
+.answer:has(> button) { padding: 0; background: none; box-shadow: none; }
 .answer.decline { background: #f4cfcf; }
 .answer.missing { background: #e5ddd0; color: var(--muted); }
 /* A counter-offer is a card, not a pill: it shows both sides of the deal. */
@@ -434,10 +439,12 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
   .side-top .bubble::after { left: 50%; right: auto; top: auto; bottom: 100%; transform: translateX(-50%); border-right-color: transparent; border-bottom-color: var(--ink); }
   /* Over the bot's own fields, so the market stays clear; a yes is the trade button itself. */
   .side-top .answer { top: auto; bottom: -1px; left: 0; right: 0; min-height: 40px; transform: none; justify-content: center; white-space: normal; text-align: center; line-height: 1.15; border-radius: 10px; }
-  .side-top .answer:has(.counter) { top: calc(100% + 4px); left: 50%; right: auto; transform: translateX(-50%); z-index: 6; }
+  /* Its own width, not the seat's: a narrow seat squeezed the deal into a column that spilled over the market. */
+  .side-top .answer:has(.counter) { top: calc(100% + 4px); bottom: auto; left: 50%; right: auto; width: max-content; min-height: 0; white-space: nowrap; transform: translateX(-50%); z-index: 6; }
   /* A yes is the trade button itself, filling the reply's spot over the bot's fields. */
-  .side-top .answer:has(button) { padding: 0; background: none; box-shadow: none; }
-  .side-top .answer button { width: 100%; min-height: 40px; padding: 2px 6px; font-size: 13px; line-height: 1.1; white-space: normal; }
+  /* Only a bare child button: a counter-offer's Take deal sits inside its own card, which keeps its background. */
+  .side-top .answer:has(> button) { padding: 0; background: none; box-shadow: none; }
+  .side-top .answer > button { width: 100%; min-height: 40px; padding: 2px 6px; font-size: 13px; line-height: 1.1; white-space: normal; }
   /* The button sits under the bot's face, so its name would only repeat; the label keeps it for screen readers. */
   .trade-target { display: none; }
   .seat:first-child .answer:has(.counter) { left: 0; transform: none; }
@@ -451,6 +458,7 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
   .seat.side-top { grid-template-rows: none; grid-template-columns: auto auto; justify-items: start; column-gap: 12px; }
   /* Over the bot's own fields, so the market stays clear to pick from. */
   .side-top .answer { top: 50%; bottom: auto; left: auto; right: -4px; width: 62px; min-height: 38px; justify-content: center; padding: 2px 4px; border-radius: 8px; font-size: 10px; transform: translateY(-50%); z-index: 6; white-space: normal; text-align: center; line-height: 1.1; }
-  .side-top .answer:has(.counter) { top: 0; left: calc(100% + 6px); transform: none; }
+  /* Undo the narrow reply pill above: the deal needs its own width to show both sides. */
+  .side-top .answer:has(.counter) { top: 0; right: auto; left: calc(100% + 6px); width: max-content; min-height: 0; padding: 6px 8px; border-radius: 12px; font-size: 12px; white-space: nowrap; transform: none; }
 }
 </style>
