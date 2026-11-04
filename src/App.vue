@@ -141,7 +141,8 @@ onMounted(resume)
   box-shadow: 0 10px 24px rgba(0, 0, 0, .5);
   cursor: pointer;
 }
-.toast.update { top: auto; bottom: calc(14px + env(safe-area-inset-bottom)); display: flex; gap: 10px; align-items: center; cursor: default; }
+/* Its own width, so the message isn't squeezed a word per line beside the buttons. */
+.toast.update { top: auto; bottom: calc(14px + env(safe-area-inset-bottom)); width: max-content; display: flex; gap: 10px; align-items: center; cursor: default; }
 .toast-enter-active, .toast-leave-active { transition: all .2s ease; }
 .toast-enter-from, .toast-leave-to { opacity: 0; transform: translate(-50%, -10px); }
 </style>
