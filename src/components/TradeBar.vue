@@ -78,6 +78,7 @@ function less(bean: BeanKey): void {
             class="chip"
             :src="`/cards/${group.bean}-240.webp`"
             alt=""
+            :data-bean="group.bean"
           >
           <span
             v-if="group.cards.length > 1"
@@ -111,9 +112,11 @@ function less(bean: BeanKey): void {
             @mouseenter="emit('point', bean.key)"
             @mouseleave="emit('point', null)"
           >
+            <!-- Names don't fit on a phone, so holding the picture shows the bean big. -->
             <img
               :src="`/cards/${bean.key}-240.webp`"
               alt=""
+              :data-bean="bean.key"
             >
             <span class="ask-name">{{ bean.name }}</span>
             <span

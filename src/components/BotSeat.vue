@@ -192,6 +192,7 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
                 class="chip"
                 :src="`/cards/${bean}-240.webp`"
                 :alt="beanTypes[bean]?.name ?? bean"
+                :data-bean="bean"
               >
               <!-- An empty side keeps the box's shape and says plainly that nothing comes back. -->
               <span
