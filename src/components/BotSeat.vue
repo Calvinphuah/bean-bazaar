@@ -434,7 +434,8 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
   .side-top .bubble::after { left: 50%; right: auto; top: auto; bottom: 100%; transform: translateX(-50%); border-right-color: transparent; border-bottom-color: var(--ink); }
   /* Over the bot's own fields, so the market stays clear; a yes is the trade button itself. */
   .side-top .answer { top: auto; bottom: -1px; left: 0; right: 0; min-height: 40px; transform: none; justify-content: center; white-space: normal; text-align: center; line-height: 1.15; border-radius: 10px; }
-  .side-top .answer:has(.counter) { top: calc(100% + 4px); left: 50%; right: auto; transform: translateX(-50%); z-index: 6; }
+  /* Its own width, not the seat's: a narrow seat squeezed the deal into a column that spilled over the market. */
+  .side-top .answer:has(.counter) { top: calc(100% + 4px); bottom: auto; left: 50%; right: auto; width: max-content; min-height: 0; white-space: nowrap; transform: translateX(-50%); z-index: 6; }
   /* A yes is the trade button itself, filling the reply's spot over the bot's fields. */
   .side-top .answer:has(button) { padding: 0; background: none; box-shadow: none; }
   .side-top .answer button { width: 100%; min-height: 40px; padding: 2px 6px; font-size: 13px; line-height: 1.1; white-space: normal; }
