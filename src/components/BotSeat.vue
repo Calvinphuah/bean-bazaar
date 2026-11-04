@@ -386,7 +386,7 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
 .side-left .answer { left: 0; transform: none; }
 .side-right .answer { left: auto; right: 0; transform: none; }
 .answer.accept { background: #cfe9c5; }
-.answer:has(button) { padding: 0; background: none; box-shadow: none; }
+.answer:has(> button) { padding: 0; background: none; box-shadow: none; }
 .answer.decline { background: #f4cfcf; }
 .answer.missing { background: #e5ddd0; color: var(--muted); }
 /* A counter-offer is a card, not a pill: it shows both sides of the deal. */
@@ -442,8 +442,9 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
   /* Its own width, not the seat's: a narrow seat squeezed the deal into a column that spilled over the market. */
   .side-top .answer:has(.counter) { top: calc(100% + 4px); bottom: auto; left: 50%; right: auto; width: max-content; min-height: 0; white-space: nowrap; transform: translateX(-50%); z-index: 6; }
   /* A yes is the trade button itself, filling the reply's spot over the bot's fields. */
-  .side-top .answer:has(button) { padding: 0; background: none; box-shadow: none; }
-  .side-top .answer button { width: 100%; min-height: 40px; padding: 2px 6px; font-size: 13px; line-height: 1.1; white-space: normal; }
+  /* Only a bare child button: a counter-offer's Take deal sits inside its own card, which keeps its background. */
+  .side-top .answer:has(> button) { padding: 0; background: none; box-shadow: none; }
+  .side-top .answer > button { width: 100%; min-height: 40px; padding: 2px 6px; font-size: 13px; line-height: 1.1; white-space: normal; }
   /* The button sits under the bot's face, so its name would only repeat; the label keeps it for screen readers. */
   .trade-target { display: none; }
   .seat:first-child .answer:has(.counter) { left: 0; transform: none; }
