@@ -221,7 +221,7 @@ const instruction = computed(() => {
     if (!myFields.value.some((field) => accepts(field, card))) return `No field can take your ${beanName(card)}: harvest a field first.`
     return `Drag your ${beanName(card)} onto a field, or press Plant here.`
   }
-  if (props.game.phase === "plant") return "Plant your next card too, or flip 2 cards to start trading."
+  if (props.game.phase === "plant") return "Plant one more card, or flip 2 cards to trade."
   return "Trade the flipped cards, or press Done trading to keep them. You plant what you keep."
 })
 
