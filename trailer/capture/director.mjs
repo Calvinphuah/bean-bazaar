@@ -28,6 +28,7 @@ function playHuman(engine) {
   if (engine.offer?.partner_index === HUMAN) return answerOffer(engine, me)
   if (engine.phase === "plant_pending" && player.pending.length > 0) return me.plantPending()
   if (engine.activeIndex !== HUMAN) return
+  if (engine.phase === "draw") return engine.drawCards()
   if (engine.phase === "plant") return me.playPlantPhase()
   if (engine.phase === "trade") return me.playTradePhase({ partnerIndexes: PARTNERS.filter((i) => i < engine.players.length), humanIndex: null })
 }

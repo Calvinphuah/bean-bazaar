@@ -131,6 +131,8 @@ const canPlantFromHand = computed(() =>
 const canFlip = computed(() =>
   live.value && myTurn.value && props.game.phase === "plant" && (props.game.hand_plants > 0 || hand.value.length === 0),
 )
+// Your turn waits here only while your last plant can still be undone.
+const canDraw = computed(() => live.value && myTurn.value && props.game.phase === "draw")
 // Not tied to `busy`: the trade stays open while a move sends, so a refused trade
 // keeps your picks; its buttons wait on `busy` instead.
 const tradeOpen = computed(() => !props.replaying && !props.game.over)
@@ -221,7 +223,9 @@ const instruction = computed(() => {
     if (!myFields.value.some((field) => accepts(field, card))) return `No field can take your ${beanName(card)}: harvest a field first.`
     return `Drag your ${beanName(card)} onto a field, or press Plant here.`
   }
+  if (props.game.phase === "plant" && !canPlantFromHand.value) return "Flip 2 cards to trade, or undo your last plant."
   if (props.game.phase === "plant") return "Plant one more card, or flip 2 cards to trade."
+  if (props.game.phase === "draw") return "Draw 3 to end your turn, or undo your last plant."
   return "Trade the flipped cards, or press Done trading to keep them. You plant what you keep."
 })
 
@@ -547,8 +551,9 @@ function ordinal(place: number): string {
             {{ instruction }}
           </p>
           <div class="buttons">
+            <!-- While traded beans wait to be planted, Undo sits in their panel instead, so it costs no row of its own. -->
             <button
-              v-if="live && game.can_undo"
+              v-if="live && game.can_undo && !pendingCard"
               class="secondary"
               title="Take back your last plant, harvest or field purchase"
               @click="move({ type: 'undo' })"
@@ -569,6 +574,13 @@ function ordinal(place: number): string {
             >
               Flip 2 cards
             </button>
+            <button
+              v-if="canDraw"
+              class="big"
+              @click="move({ type: 'draw_cards' })"
+            >
+              Draw 3
+            </button>
           </div>
 
           <div
@@ -578,6 +590,14 @@ function ordinal(place: number): string {
             <div class="pending-head">
               <strong>Plant your traded beans</strong>
               <span class="left">{{ me.pending.length }} left</span>
+              <button
+                v-if="live && game.can_undo"
+                class="small secondary"
+                title="Take back your last plant, harvest or field purchase"
+                @click="move({ type: 'undo' })"
+              >
+                ↶ Undo
+              </button>
             </div>
             <p class="pending-rule">
               These can't be traded again.

@@ -1,7 +1,7 @@
 // Mirrors serializeGame in src/games/serializer.ts (the Rails Api::GameSerializer shape).
 export type BeanKey = string
 
-export type Phase = "plant" | "trade" | "plant_pending" | "over"
+export type Phase = "plant" | "trade" | "plant_pending" | "draw" | "over"
 
 export type BotLevel = "easy" | "normal" | "smart"
 
@@ -96,6 +96,7 @@ export type Move =
   | { type: "flip_cards" }
   | { type: "undo" }
   | { type: "end_trading" }
+  | { type: "draw_cards" }
   | { type: "buy_third_field" }
   | { type: "accept_offer"; bean?: BeanKey }
   | { type: "decline_offer" }

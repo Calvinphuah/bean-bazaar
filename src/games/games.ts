@@ -17,7 +17,7 @@ export const DEFAULT_BOT_LEVEL: BotLevel = "normal"
 
 // Moves only the active player can make; harvesting, buying a field and
 // planting pending cards are allowed on any turn.
-export const ACTIVE_PLAYER_MOVES = ["plant_from_hand", "flip_cards", "trade", "end_trading"]
+export const ACTIVE_PLAYER_MOVES = ["plant_from_hand", "flip_cards", "trade", "end_trading", "draw_cards"]
 
 // Answers to an offer a bot made to the human, allowed on the bot's turn.
 // open_bids turns it down to make the human's own offers instead.

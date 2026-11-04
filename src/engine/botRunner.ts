@@ -48,8 +48,10 @@ export class BotRunner {
     for (const index of this.botIndexes()) this.bot(index).plantPending()
   }
 
-  // Only plant and trade reach here; plant_pending is handled for every bot above.
+  // Only plant, trade and draw reach here; plant_pending is handled for every bot above.
   private playActiveBot(): void {
+    if (this.game.phase === "draw") return this.game.drawCards()
+
     const activeBot = this.bot(this.game.activeIndex)
     if (this.game.phase === "plant") return activeBot.playPlantPhase()
 
