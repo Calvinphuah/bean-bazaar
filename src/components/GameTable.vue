@@ -1101,6 +1101,10 @@ function ordinal(place: number): string {
   /* Undo the desktop top-middle seat's side-by-side fields; in the strip every seat is alike. */
   .felt :deep(.seat.spot-top) { grid-template-rows: auto auto; grid-auto-flow: row; gap: 4px; }
   .row { flex-direction: column; align-items: center; gap: 6px; }
+  /* Full width, not sized by its contents, so the trade bar keeps one width as its status text changes. */
+  .my-spot { justify-self: stretch; padding-bottom: 0; }
+  /* Nothing is planted while trading, so no field can grow: they drop the room kept for Plant here and a longer payout line. */
+  .my-spot:has(.trade) :deep(.field .actions), .my-spot:has(.trade) :deep(.field .info) { min-height: 0; }
   /* While trading, the bar sits right under the market it trades with, so both stay in view; your fields follow. */
   .action:has(.trade), .action:has(.offer) { order: -1; }
   /* A bot's offer shows the market cards it is giving, so it takes the market's place, right under the bots. */
