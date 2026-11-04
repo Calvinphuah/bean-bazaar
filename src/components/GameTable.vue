@@ -1014,9 +1014,12 @@ function ordinal(place: number): string {
 .peek-enter-active, .peek-leave-active { transition: opacity .15s ease, transform .15s ease; }
 .peek-enter-from, .peek-leave-to { opacity: 0; transform: translateY(12px); }
 .log-spot { position: fixed; right: 16px; top: 60px; z-index: 20; }
-.overlay { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px; background: rgba(20, 14, 10, .72); }
-.payouts { width: min(980px, 100%); max-height: 90vh; overflow-y: auto; display: grid; gap: 12px; padding: 20px; }
-.payouts-header { display: flex; justify-content: space-between; align-items: center; }
+/* Clear of the notch and home bar, where a tap goes to the phone, not the page. */
+.overlay { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); background: rgba(20, 14, 10, .72); }
+/* Scrolling past the last card stops here instead of dragging the whole screen. */
+.payouts { width: min(980px, 100%); max-height: 90vh; max-height: calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); overflow-y: auto; overscroll-behavior: contain; display: grid; gap: 12px; padding: 20px; }
+/* Close stays in reach however far down the cards you scroll. */
+.payouts-header { position: sticky; top: -20px; z-index: 1; margin: -20px -20px 0; padding: 20px 20px 8px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; }
 .payouts p { margin: 0; }
 .leave { width: min(360px, 100%); display: grid; gap: 10px; padding: 20px; text-align: center; }
 .leave p { margin: 0; }
@@ -1076,7 +1079,8 @@ function ordinal(place: number): string {
   .left, .pending-rule { font-size: 13px; }
   .me { padding: 0 8px; }
   .preview { display: none; }
-  .log-spot { right: 8px; top: 48px; }
+  /* Under the top bar, which the notch pushes down; over it, the bar's menu button covered the log's close button. */
+  .log-spot { right: 8px; top: calc(48px + env(safe-area-inset-top)); }
   .result { padding: 18px 16px 16px; gap: 10px; }
   .result h2 { font-size: 24px; }
 }
@@ -1089,7 +1093,7 @@ function ordinal(place: number): string {
   /* Spare height is shared out between the rows; on a screen too short for the
      table it scrolls instead of overlapping. Not space-evenly: that pushes the
      overflow off the top, out of scroll reach. */
-  .felt { grid-template-rows: auto auto auto; align-content: stretch; gap: 1px; overflow-y: auto; }
+  .felt { grid-template-rows: auto auto auto; align-content: stretch; gap: 1px; overflow-y: auto; overscroll-behavior: contain; }
   /* Room on top for the hand-count badges, which stick up past the plates and would be clipped by the felt. */
   .seats { grid-row: 1; max-width: 100%; display: flex; justify-content: center; gap: 4px; padding: 9px 6px 0; }
   /* Four plates only fit across with the coin icon standing in for the word. */
@@ -1156,7 +1160,7 @@ function ordinal(place: number): string {
   .pending-cards :deep(.card.small) { width: 50px; }
   .pending-hint { font-size: 12px; }
   /* Short standings, so Play again stays on screen; a five-player table can still scroll to it. */
-  .overlay { padding: 8px; overflow-y: auto; }
+  .overlay { padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); overflow-y: auto; }
   .result { gap: 6px; padding: 12px 16px; }
   .result h2 { font-size: 20px; }
   .result-line { margin: -2px 0 2px; }
