@@ -24,6 +24,8 @@ const props = defineProps<{
   canTradeWith: boolean
   // Your offer asks for nothing back, so the button says give instead of trade.
   gift: boolean
+  // A move is sending, so the trade buttons wait for it.
+  busy: boolean
   // Which edge of the table the bot sits on; its fields face the middle.
   side: "left" | "right" | "top"
 }>()
@@ -164,6 +166,7 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
       <button
         v-if="answer === 'accept' && canTradeWith"
         class="small"
+        :disabled="busy"
         :aria-label="`${gift ? 'Give to' : 'Trade with'} ${name}`"
         @click="emit('trade')"
       >
@@ -199,7 +202,8 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
           </div>
         </div>
         <button
-          class="small"
+          class="small reach"
+          :disabled="busy"
           :aria-label="`Take ${name}'s deal: ${counterText}`"
           @click="emit('counter')"
         >

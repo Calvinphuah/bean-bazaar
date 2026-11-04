@@ -129,9 +129,12 @@ const canPlantFromHand = computed(() =>
 const canFlip = computed(() =>
   live.value && myTurn.value && props.game.phase === "plant" && (props.game.hand_plants > 0 || hand.value.length === 0),
 )
-const isTrading = computed(() => live.value && myTurn.value && props.game.phase === "trade" && !props.game.offer)
+// Not tied to `busy`: the trade stays open while a move sends, so a refused trade
+// keeps your picks; its buttons wait on `busy` instead.
+const tradeOpen = computed(() => !props.replaying && !props.game.over)
+const isTrading = computed(() => tradeOpen.value && myTurn.value && props.game.phase === "trade" && !props.game.offer)
 // On a bot's turn, after turning its offer down to make your own.
-const isBidding = computed(() => live.value && props.game.bidding)
+const isBidding = computed(() => tradeOpen.value && props.game.bidding)
 const isDealing = computed(() => isTrading.value || isBidding.value)
 // The trade bar's buttons can vanish under the pointer, so its preview closes with it.
 watch(isDealing, (dealing) => { if (!dealing) pointedBean.value = null })
@@ -403,6 +406,7 @@ function ordinal(place: number): string {
           :counter="isDealing ? trade.counters.value[seat.index] ?? null : null"
           :can-trade-with="layout !== 'landscape' && isDealing && trade.answers.value[seat.index] === 'accept'"
           :gift="trade.isGift.value"
+          :busy="busy"
           :side="!compact && (seat.spot === 'left' || seat.spot === 'right') ? seat.spot : 'top'"
           @trade="trade.tradeWith(seat.index)"
           @counter="trade.takeCounter(seat.index)"
@@ -416,7 +420,7 @@ function ordinal(place: number): string {
           :bean-types="beanTypes"
           :picked-face-up="trade.pickedFaceUp.value"
           :pickable="isDealing"
-          @pick="trade.toggleFaceUp"
+          @pick="busy || trade.toggleFaceUp($event)"
           @point="pointedBean = $event"
         />
       </div>
@@ -521,8 +525,8 @@ function ordinal(place: number): string {
             :busy="busy"
             :partners="layout === 'portrait' ? [] : trade.acceptors.value.map((index) => ({ index, name: nameOf(index) }))"
             :gift="trade.isGift.value"
-            @ask="trade.changeAsk"
-            @remove="trade.removeGive"
+            @ask="(bean, change) => busy || trade.changeAsk(bean, change)"
+            @remove="busy || trade.removeGive($event)"
             @point="pointedBean = $event"
             @clear="trade.clear"
             @done="move({ type: isBidding ? 'close_bids' : 'end_trading' })"
@@ -629,7 +633,7 @@ function ordinal(place: number): string {
         :pickable="isDealing"
         :picked="trade.pickedHand.value"
         :compact="compact"
-        @pick="trade.toggleHand"
+        @pick="busy || trade.toggleHand($event)"
         @point="pointedBean = $event"
       />
     </section>
