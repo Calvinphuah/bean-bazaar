@@ -2,6 +2,7 @@
 import { computed, ref, watch } from "vue"
 import BeanCard from "./BeanCard.vue"
 import { setCardDragImage, startTouchDrag } from "../dragImage"
+import { HOLD_MS, HOLD_SLOP } from "../useHoldToPeek"
 import type { BeanKey, BeanType } from "../types"
 
 // The fan never gets wider than its max width, so a big late-game hand still fits the screen.
@@ -83,16 +84,28 @@ function onDragStart(event: DragEvent): void {
 }
 
 // A finger can't hover, so a tap lifts a card out of the fan to read it, and a second tap drops it.
+// Kept by hand index, not screen spot, so swapping the fan's side keeps the same card lifted.
 const peeked = ref<number | null>(null)
 watch(() => props.hand.length, () => { peeked.value = null })
 
-function peek(event: PointerEvent, position: number): void {
+// Only a quick, still tap lifts a card: a drag, a scroll or a hold (which shows the payout) leaves it be.
+function peek(event: PointerEvent, index: number): void {
   if (event.pointerType === "mouse" || props.pickable) return
-  peeked.value = peeked.value === position ? null : position
+  const startedAt = performance.now()
+  function onUp(up: PointerEvent): void {
+    if (up.pointerId !== event.pointerId) return
+    window.removeEventListener("pointerup", onUp)
+    window.removeEventListener("pointercancel", onUp)
+    const still = Math.hypot(up.clientX - event.clientX, up.clientY - event.clientY) < HOLD_SLOP
+    if (up.type !== "pointerup" || !still || performance.now() - startedAt >= HOLD_MS) return
+    peeked.value = peeked.value === index ? null : index
+  }
+  window.addEventListener("pointerup", onUp)
+  window.addEventListener("pointercancel", onUp)
 }
 
 function onPointerDown(event: PointerEvent): void {
-  startTouchDrag(event, () => { dragging.value = true; emit("point", null) }, () => { dragging.value = false })
+  startTouchDrag(event, () => { dragging.value = true; peeked.value = null; emit("point", null) }, () => { dragging.value = false })
 }
 </script>
 
@@ -121,9 +134,9 @@ function onPointerDown(event: PointerEvent): void {
           <div
             v-if="beanTypes[bean]"
             class="slot"
-            :class="{ front: index === 0, dragging: index === 0 && dragging, peek: peeked === position && !dragging }"
+            :class="{ front: index === 0, dragging: index === 0 && dragging, peek: peeked === index && !dragging }"
             :style="slotStyle(position)"
-            @pointerdown="peek($event, position)"
+            @pointerdown="peek($event, index)"
             @mouseenter="!dragging && emit('point', bean)"
             @mouseleave="emit('point', null)"
           >

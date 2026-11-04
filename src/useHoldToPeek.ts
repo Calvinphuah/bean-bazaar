@@ -2,9 +2,9 @@ import { ref } from "vue"
 import type { BeanKey } from "./types"
 
 // How long a finger rests on a card before its payout shows.
-const HOLD_MS = 400
+export const HOLD_MS = 400
 // A finger moving this far is a drag or a scroll, not a hold.
-const HOLD_SLOP = 8
+export const HOLD_SLOP = 8
 // The tap that follows lifting a held card arrives just after the finger leaves.
 const CLICK_GRACE_MS = 400
 
