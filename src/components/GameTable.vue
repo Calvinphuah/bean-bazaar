@@ -849,7 +849,8 @@ function ordinal(place: number): string {
 }
 @keyframes turn { 30%, 70% { transform: rotate(-90deg); } }
 
-.topbar { position: relative; z-index: 15; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding: 10px 20px; }
+/* Above the open log, so the phone menu that drops down over it can still be seen. */
+.topbar { position: relative; z-index: 21; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding: 10px 20px; }
 .tools { justify-self: end; display: flex; gap: 2px; white-space: nowrap; }
 /* Menu items, not game actions: plain text so the phase tracker leads the bar. */
 .tool { background: none; border: 0; box-shadow: none; padding: 6px 10px; border-radius: 8px; color: #fff6dc; font-size: 14px; text-shadow: 0 1px 0 rgba(0, 0, 0, .45); }
