@@ -93,7 +93,7 @@ function onDrop(): void {
       <!-- The instruction names the bean; the button just says where it goes. -->
       <button
         v-if="plantLabel"
-        class="small"
+        class="small reach"
         :aria-label="plantLabel"
         @click="emit('plant')"
       >
@@ -101,7 +101,7 @@ function onDrop(): void {
       </button>
       <button
         v-if="beanType"
-        class="small secondary"
+        class="small secondary reach"
         :disabled="!canHarvest"
         :title="canHarvest ? '' : 'Harvest a field with more beans first'"
         @click="emit('harvest')"

@@ -124,7 +124,7 @@ function less(bean: BeanKey): void {
           <!-- Right-click needs a mouse; this works for touch and keyboard too. -->
           <button
             v-if="getCounts[bean.key]"
-            class="less"
+            class="less reach"
             :aria-label="`Ask for one less ${bean.name} bean`"
             @click="less(bean.key)"
           >
@@ -246,7 +246,7 @@ h3 small { font-size: inherit; }
   h3 { font-size: 13px; }
   .chips { min-height: 44px; }
   .chips, .asks { grid-template-columns: repeat(var(--beans), minmax(0, 1fr)); }
-  .chip, .ask img { width: 100%; max-width: 26px; }
+  .chip, .ask img { width: 100%; max-width: 30px; }
   .ask { padding: 3px 1px; }
   .ask-name { display: none; }
   .ask-count { right: 0; font-size: 10px; padding: 0 4px; }

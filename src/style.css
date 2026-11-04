@@ -68,6 +68,11 @@ button.small { padding: 3px 10px; font-size: 13px; }
 button.big { font-size: 17px; padding: 9px 22px; }
 /* Fingers need bigger targets than a mouse pointer. */
 @media (pointer: coarse) { button.small { padding: 8px 14px; } }
+/* A packed phone table has no room for finger-sized buttons, so their tap area reaches past the edge they show. */
+@media (pointer: coarse) {
+  .reach { position: relative; }
+  .reach::after { content: ""; position: absolute; inset: -6px; }
+}
 
 /* A card you can pick: a real button, so it works with the keyboard too. */
 .card-button {
