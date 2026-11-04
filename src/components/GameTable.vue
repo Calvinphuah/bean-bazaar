@@ -88,6 +88,8 @@ const SEAT_SPOTS: Record<number, string[]> = {
 const showLog = ref(false)
 const showTools = ref(false)
 const showPayouts = ref(false)
+// One mis-tap in the menu would throw away the game, so leaving asks first.
+const confirmLeave = ref(false)
 const pickedPending = ref<number | null>(null)
 // The bean under the pointer in your hand, a field, the market or the trade bar, shown big with its coin row.
 const pointedBean = ref<BeanKey | null>(null)
@@ -372,7 +374,7 @@ function ordinal(place: number): string {
         </button>
         <button
           class="tool"
-          @click="emit('leave')"
+          @click="confirmLeave = true"
         >
           New game
         </button>
@@ -696,6 +698,31 @@ function ordinal(place: number): string {
       </div>
     </div>
 
+    <div
+      v-if="confirmLeave"
+      class="overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Start a new game"
+      @click.self="confirmLeave = false"
+    >
+      <div class="panel leave">
+        <h2>Start a new game?</h2>
+        <p>This game ends and can't be picked up again.</p>
+        <div class="leave-buttons">
+          <button
+            class="secondary"
+            @click="confirmLeave = false"
+          >
+            Keep playing
+          </button>
+          <button @click="confirmLeave = false; emit('leave')">
+            New game
+          </button>
+        </div>
+      </div>
+    </div>
+
     <Transition name="pop">
       <div
         v-if="game.over && !replaying"
@@ -990,6 +1017,9 @@ function ordinal(place: number): string {
 .payouts { width: min(980px, 100%); max-height: 90vh; overflow-y: auto; display: grid; gap: 12px; padding: 20px; }
 .payouts-header { display: flex; justify-content: space-between; align-items: center; }
 .payouts p { margin: 0; }
+.leave { width: min(360px, 100%); display: grid; gap: 10px; padding: 20px; text-align: center; }
+.leave p { margin: 0; }
+.leave-buttons { display: flex; justify-content: center; gap: 10px; }
 .payout-cards { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
 .result { position: relative; width: min(460px, 100%); display: grid; gap: 14px; padding: 26px 24px 24px; text-align: center; }
 .result.won { box-shadow: 0 0 0 4px var(--gold), 0 0 60px rgba(246, 201, 56, .55), 0 18px 40px rgba(0, 0, 0, .6); animation: cheer .6s ease-out; }
