@@ -184,7 +184,8 @@ function onDrop(): void {
 }
 /* Upright, a field with both buttons is the tallest thing on the table, so they slim down. */
 @media (orientation: portrait) and (max-width: 1024px) {
-  .actions { gap: 4px; }
+  /* Room for both buttons even when one is hidden, so the field keeps its height and the table doesn't shift as Plant here comes and goes. */
+  .actions { gap: 4px; min-height: 58px; justify-content: flex-end; }
   .actions button { padding: 4px 10px; }
 }
 /* A phone on its side is short, so the next-payout line stays on one line,
