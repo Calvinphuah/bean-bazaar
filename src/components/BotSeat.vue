@@ -452,6 +452,7 @@ const answerLabel = (answer: QuoteAnswer): string => VOICES[props.name]?.[answer
   .seat.side-top { grid-template-rows: none; grid-template-columns: auto auto; justify-items: start; column-gap: 12px; }
   /* Over the bot's own fields, so the market stays clear to pick from. */
   .side-top .answer { top: 50%; bottom: auto; left: auto; right: -4px; width: 62px; min-height: 38px; justify-content: center; padding: 2px 4px; border-radius: 8px; font-size: 10px; transform: translateY(-50%); z-index: 6; white-space: normal; text-align: center; line-height: 1.1; }
-  .side-top .answer:has(.counter) { top: 0; left: calc(100% + 6px); transform: none; }
+  /* Undo the narrow reply pill above: the deal needs its own width to show both sides. */
+  .side-top .answer:has(.counter) { top: 0; right: auto; left: calc(100% + 6px); width: max-content; min-height: 0; padding: 6px 8px; border-radius: 12px; font-size: 12px; white-space: nowrap; transform: none; }
 }
 </style>
