@@ -187,6 +187,8 @@ function onDrop(): void {
   /* Room for both buttons even when one is hidden, so the field keeps its height and the table doesn't shift as Plant here comes and goes. */
   .actions { gap: 4px; min-height: 58px; justify-content: flex-end; }
   .actions button { padding: 4px 10px; }
+  /* Three lines once a pile is worth coins (its worth over a two-line next payout), so room for them from the start. */
+  .info { min-height: 43px; }
 }
 /* A phone on its side is short, so the next-payout line stays on one line,
    in a field wide enough to hold it. */
