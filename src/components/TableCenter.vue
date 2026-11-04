@@ -245,8 +245,8 @@ const deckStyle = computed(() => {
 
 /* On its side the phone is short, so the flipped cards sit under the deck. */
 @media (orientation: landscape) and (max-height: 500px) {
-  /* Room for a picked card's lift and glow, so it never covers the season bar. */
-  .center { flex-direction: column; gap: 16px; }
+  /* Room for a picked card's 4px ring, so it never covers the season bar; more would push the market past the table. */
+  .center { flex-direction: column; gap: 6px; }
   .face-up { min-height: 108px; }
   /* Above the picked market card's glow, which reaches up to it on a short screen. */
   .seasons { position: relative; z-index: 2; }

@@ -48,12 +48,26 @@ const MAX_SCALE = 1.5
 const UPRIGHT_MIN_FILL = 0.85
 const scale = ref(1)
 
+// The table is padded clear of the notch and home bar, so its layout has to fit
+// inside them. Only CSS knows their size; a hidden element outside the zoomed
+// table reads it.
+function safeInsets(): { x: number; top: number } {
+  const probe = document.createElement("div")
+  probe.style.cssText = "position: fixed; visibility: hidden; padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left)"
+  document.body.appendChild(probe)
+  const style = getComputedStyle(probe)
+  const insets = { x: parseFloat(style.paddingLeft) + parseFloat(style.paddingRight), top: parseFloat(style.paddingTop) }
+  probe.remove()
+  return insets
+}
+
 function fitTable(): void {
   layout.value = (["portrait", "landscape"] as const).find((name) => window.matchMedia(LAYOUTS[name].query).matches) ?? "table"
   const size = LAYOUTS[layout.value]
-  const fitWidth = window.innerWidth / size.width
+  const insets = safeInsets()
+  const fitWidth = window.innerWidth / (size.width + insets.x)
   // The upright felt scrolls, so a short screen trades a little scrolling for readable text.
-  const fitHeight = Math.max(window.innerHeight / size.height, layout.value === "portrait" ? fitWidth * UPRIGHT_MIN_FILL : 0)
+  const fitHeight = Math.max(window.innerHeight / (size.height + insets.top), layout.value === "portrait" ? fitWidth * UPRIGHT_MIN_FILL : 0)
   scale.value = Math.min(MAX_SCALE, fitWidth, fitHeight)
 }
 
