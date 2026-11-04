@@ -134,7 +134,7 @@ function onPointerDown(event: PointerEvent): void {
           <div
             v-if="beanTypes[bean]"
             class="slot"
-            :class="{ front: index === 0, dragging: index === 0 && dragging, peek: peeked === index && !dragging }"
+            :class="{ front: index === 0, dragging: index === 0 && dragging, peek: peeked === index && !dragging, picked: pickable && picked.includes(index) }"
             :style="slotStyle(position)"
             @pointerdown="peek($event, index)"
             @mouseenter="!dragging && emit('point', bean)"
@@ -198,6 +198,8 @@ function onPointerDown(event: PointerEvent): void {
 @media (hover: hover) { .slot:hover { transform: translateY(-46px); z-index: 50 !important; } }
 /* Above the swap button too, since a lifted card is being read. */
 .slot.peek { transform: translateY(-34px); z-index: 70 !important; }
+/* A card picked to trade comes out from under its neighbours, so its whole highlight shows. */
+.slot.picked { z-index: 55 !important; }
 .tilt { position: relative; transform-origin: 50% 130%; transition: transform .2s ease; }
 .next {
   position: absolute;
@@ -213,7 +215,10 @@ function onPointerDown(event: PointerEvent): void {
   padding: 1px 8px;
   border-radius: 999px;
   border: 2px solid var(--ink);
+  transition: top .15s ease;
 }
+/* Rises with a picked card (BeanCard lifts it 12px), so the tag never covers the bean's name. */
+.slot.picked .next { top: -26px; }
 /* The front card can't be planted right now, so its tag stops shouting. */
 .next.waiting { background: var(--panel-dark); color: var(--ink); }
 .grabbable { cursor: grab; touch-action: none; -webkit-touch-callout: none; }
@@ -227,7 +232,7 @@ function onPointerDown(event: PointerEvent): void {
    the end away from the front card, so it costs no height. */
 @media (orientation: portrait) and (max-width: 1024px), (orientation: landscape) and (max-height: 500px) {
   /* The whole card shows, corner number included, clear of the home bar. */
-  .hand { padding: 16px 8px max(8px, env(safe-area-inset-bottom)); margin-bottom: 0; min-height: 100px; }
+  .hand { padding: 16px 8px max(8px, var(--safe-bottom, env(safe-area-inset-bottom))); margin-bottom: 0; min-height: 100px; }
   .swap { right: auto; left: calc(100% + 10px); bottom: 30px; width: 36px; height: 36px; padding: 0; display: grid; place-items: center; font-size: 18px; line-height: 1; }
   .swap.front-right { left: auto; right: calc(100% + 10px); }
   .swap-label { display: none; }

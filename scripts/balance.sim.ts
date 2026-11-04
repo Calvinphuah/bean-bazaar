@@ -67,6 +67,7 @@ class Human {
     const game = this.game
     if (game.offer && game.offer.partner_index === this.index) this.answer()
     else if (game.phase === "plant_pending") this.plantPending()
+    else if (game.phase === "draw") game.drawCards()
     else if (game.phase === "plant") this.plantPhase()
     else if (game.phase === "trade") this.tradePhase()
     else throw new Error(`stuck ${game.phase}`)
@@ -264,6 +265,7 @@ function playAsBot(game: Game, level: BotClass, bots: number): void {
     if (indexes !== null && (choices.length === 0 || pick !== undefined) && self.accepts({ offered: gives, requested })) game.acceptOffer({ bean: pick })
     else bidRound(game, level)
   } else if (game.phase === "plant_pending") self.plantPending()
+  else if (game.phase === "draw") game.drawCards()
   else if (game.phase === "plant") self.playPlantPhase()
   else self.playTradePhase({ partnerIndexes: Array.from({ length: bots }, (_bot, index) => index + 1), humanIndex: null })
 }

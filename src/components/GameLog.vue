@@ -48,7 +48,7 @@ const newestFirst = computed(() =>
 <style scoped>
 .log { width: 300px; max-height: 70vh; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 18px 40px rgba(0, 0, 0, .55); }
 .header { display: flex; justify-content: space-between; align-items: center; }
-ol { list-style: none; margin: 0; padding: 0; overflow-y: auto; display: grid; gap: 3px; font-size: 13px; }
+ol { list-style: none; margin: 0; padding: 0; overflow-y: auto; overscroll-behavior: contain; display: grid; gap: 3px; font-size: 13px; }
 li { padding: 3px 6px; border-radius: 6px; line-height: 1.35; }
 li.turn, li.game_over { font-weight: 800; background: var(--panel-dark); margin-top: 6px; }
 li.harvest { color: var(--ok); }

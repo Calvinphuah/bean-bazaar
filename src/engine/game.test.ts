@@ -70,22 +70,26 @@ describe("Game", () => {
       expect(calvin.hand.cards).toEqual(["red"])
     })
 
-    it("flips straight away after the second card and refuses a third", () => {
+    it("waits for the flip after the second card, so it can be undone, and refuses a third", () => {
       game.plantFromHand(0)
       game.plantFromHand(1)
 
+      expect(game.phase).toBe("plant")
+      expect(game.faceUp.cards).toEqual([])
+      expect(() => game.plantFromHand(0)).toThrow("You can plant at most 2 cards from your hand")
+
+      game.flipCards()
       expect(game.phase).toBe("trade")
       expect(game.faceUp.cards).toEqual(["green", "stink"])
-      expect(() => game.plantFromHand(0)).toThrow("You can plant at most 2 cards from your hand")
     })
 
-    it("flips straight away when the first plant empties the hand", () => {
+    it("waits for the flip when the first plant empties the hand", () => {
       calvin.hand.takeAll()
       calvin.hand.add(["blue"])
       game.plantFromHand(0)
 
-      expect(game.phase).toBe("trade")
-      expect(game.faceUp.cards).toEqual(["green", "stink"])
+      expect(game.phase).toBe("plant")
+      expect(() => game.plantFromHand(0)).toThrow("Your hand is empty")
     })
 
     it("keeps the card in hand when the field doesn't fit", () => {
@@ -171,9 +175,19 @@ describe("Game", () => {
       expect(game.phase).toBe("plant_pending")
     })
 
+    it("waits for the draw once the last card is planted, so that plant can be undone", () => {
+      game.plantPending({ playerIndex: 0, pendingIndex: 0, fieldIndex: 1 })
+      game.plantPending({ playerIndex: 1, pendingIndex: 0, fieldIndex: 0 })
+
+      expect(game.phase).toBe("draw")
+      expect(game.activePlayer).toBe(calvin)
+      expect(() => game.flipCards()).toThrow("You can't do that during the draw phase")
+    })
+
     it("draws 3 to the back of the hand and passes the turn", () => {
       game.plantPending({ playerIndex: 0, pendingIndex: 0, fieldIndex: 1 })
       game.plantPending({ playerIndex: 1, pendingIndex: 0, fieldIndex: 0 })
+      game.drawCards()
 
       expect(calvin.hand.cards).toEqual(["soy", "red", "red", "red", "red"])
       expect(game.activePlayer).toBe(bot)

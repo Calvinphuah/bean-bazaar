@@ -92,11 +92,19 @@ describe("makeMove", () => {
       expect(() => move("undo")).toThrow("There's nothing to undo")
     })
 
-    it("won't take back a plant that flipped the cards for you", () => {
+    it("takes back the second plant, which no longer flips the cards for you", () => {
       move("plant_from_hand", { field_index: 0 })
       move("plant_from_hand", { field_index: 1 })
+      expect(engine().phase).toBe("plant")
 
-      expect(engine().phase).toBe("trade")
+      move("undo")
+      expect(engine().handPlants).toBe(1)
+    })
+
+    it("won't take back a plant once the cards are flipped", () => {
+      move("plant_from_hand", { field_index: 0 })
+      move("flip_cards")
+
       expect(saved.undo_states).toEqual([])
     })
   })
@@ -128,8 +136,8 @@ describe("makeMove", () => {
       you = player("You", ["blue", "soy", "chili"], { fields: [field(), field(), field()] })
       saved = savedFrom(new Game({ players: [you, pinto, lima], deck }), "easy")
       move("plant_from_hand", { field_index: 0 })
-      // The second plant flips the cards by itself.
       move("plant_from_hand", { field_index: 1 })
+      move("flip_cards")
     })
 
     it("trades with a bot that likes the offer", () => {
@@ -166,8 +174,27 @@ describe("makeMove", () => {
 
       move("plant_pending", { pending_index: 0, field_index: 1 })
 
+      // Your last plant can still be undone, so the turn waits for you to draw.
+      expect(engine().phase).toBe("draw")
+      expect(saved.undo_states).not.toEqual([])
+
+      move("draw_cards")
+
       expect(engine().activeIndex).toBe(0)
       expect(engine().phase).toBe("plant")
+    })
+
+    it("draws for you when the bots plant the last traded beans, as there is nothing to undo", () => {
+      const waiting = new Game({ players: [you, pinto, lima], deck, phase: "trade", faceUp: new Hand([]) })
+      waiting.players[1]?.pending.push("red")
+      saved = savedFrom(waiting, "easy")
+      const handBefore = you.hand.size
+
+      move("end_trading")
+
+      expect(engine().activeIndex).toBe(0)
+      expect(engine().phase).toBe("plant")
+      expect(engine().players[0]?.hand.size).toBe(handBefore + 3)
     })
   })
 

@@ -272,9 +272,12 @@ h3 small { font-size: inherit; }
   /* Both titles sit beside their rows, so the bar stays two rows high. */
   h3 { font-size: 12px; line-height: 1.2; white-space: nowrap; }
   h3 small { display: block; font-family: "Plus Jakarta Sans", sans-serif; font-size: 10px; font-weight: 800; color: var(--muted); }
-  .chips { min-height: 36px; padding-top: 0; }
+  /* As tall as a picked card, so the bar doesn't grow when the first one lands. */
+  .chips { min-height: 52px; padding-top: 0; }
   .chip, .ask img { max-width: 28px; }
   .chip-button, .ask { min-height: 44px; padding: 4px 1px; justify-self: stretch; }
+  /* Three lines held for the longest status, so the bar keeps one height as it changes. */
+  .status { min-height: calc(3 * 1.3em); display: flex; align-items: center; }
   .partners button { padding: 4px 6px; }
 }
 /* Sideways the bar is a narrow column: the status gets its own row, and slimmer

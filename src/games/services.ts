@@ -107,6 +107,7 @@ class MoveMaker {
     this.applyMove()
     botRunner(this.saved, this.engine).run()
     this.rememberUndo()
+    this.drawIfNothingToUndo()
     return { ...this.saved, state: this.engine.toJSON(), undo_states: this.undoStates }
   }
 
@@ -127,6 +128,8 @@ class MoveMaker {
         return this.trade(move)
       case "end_trading":
         return this.engine.endTrading()
+      case "draw_cards":
+        return this.engine.drawCards()
       case "plant_pending":
         return this.engine.plantPending({
           playerIndex: this.humanIndex,
@@ -167,6 +170,15 @@ class MoveMaker {
     if (this.move.type === "undo") return
 
     this.undoStates = this.isUndoable() ? [...this.undoStates, this.stateBefore].slice(-MAX_UNDOS) : []
+  }
+
+  // Your turn waits at the draw only while your last plant can still be undone;
+  // otherwise the draw would just be one more tap.
+  private drawIfNothingToUndo(): void {
+    if (this.engine.phase !== "draw" || this.engine.activeIndex !== this.humanIndex || this.undoStates.length > 0) return
+
+    this.engine.drawCards()
+    botRunner(this.saved, this.engine).run()
   }
 
   private isUndoable(): boolean {

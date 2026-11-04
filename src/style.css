@@ -19,6 +19,8 @@
 
 /* iOS enlarges text when a phone turns sideways; the table sizes itself instead. */
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+/* Only the root element stops the whole page bouncing (not body), and if iOS bounces anyway it shows wood, not white. */
+html { overscroll-behavior: none; background-color: #8c4f2b; }
 /* While the table is up the page itself never scrolls, so a drag can't slide the background around. */
 html:has(.game), html:has(.game) body { overflow: hidden; }
 

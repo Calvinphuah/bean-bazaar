@@ -70,7 +70,7 @@ interface GameOptions {
 //   plant          plant the front hand card, optionally the next one
 //   trade          flip 2 cards, then trade or gift them and hand cards
 //   plant_pending  every player plants the cards they traded for or kept
-//   (draw)         the active player draws 3 to the back of their hand
+//   draw           the active player draws 3 to the back of their hand
 // Players may harvest or buy a third field at any time before the end.
 export class Game {
   static readonly MIN_PLAYERS = 3
@@ -237,7 +237,6 @@ export class Game {
     this.activePlayer.hand.takeFront()
     this.handPlants += 1
     this.note("plant", this.activeIndex, `${this.activePlayer.name} planted ${beanNames([card])}`)
-    if (!this.canPlantFromHand()) this.flipCards()
   }
 
   flipCards(): void {
@@ -370,7 +369,13 @@ export class Game {
     const card = player.pending[pendingIndex]
     player.plantPending(pendingIndex, fieldIndex)
     this.note("plant", playerIndex, `${player.name} planted ${beanNames([card as BeanKey])}`)
-    if (this.nothingPending()) this.finishTurn()
+    // Waits for the draw rather than ending the turn, so the last plant can still be undone.
+    if (this.nothingPending()) this.phase = "draw"
+  }
+
+  drawCards(): void {
+    this.requirePhase("draw")
+    this.finishTurn()
   }
 
   harvest({ playerIndex, fieldIndex }: { playerIndex: number; fieldIndex: number }): void {
@@ -392,11 +397,6 @@ export class Game {
     const player = this.playerAt(playerIndex)
     this.deck.discard(player.buyThirdField())
     this.note("buy_field", playerIndex, `${player.name} bought a third field`)
-  }
-
-  // Once a second card is planted, or the hand runs out, the only move left is the flip.
-  private canPlantFromHand(): boolean {
-    return this.handPlants < Game.MAX_HAND_PLANTS && !this.activePlayer.hand.isEmpty()
   }
 
   private requirePhase(expected: Phase): void {

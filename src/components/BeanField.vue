@@ -73,6 +73,15 @@ function onDrop(): void {
         :key="field.count"
         class="badge"
       >{{ field.count }}</span>
+      <!-- Upright phones show the pile's worth here, like the bots' fields, so the text under it stays two lines. -->
+      <span
+        v-if="coins"
+        class="worth"
+        :title="`Worth ${coinText(coins)} if harvested now`"
+      ><img
+        src="/cards/coin.webp"
+        alt=""
+      >{{ coins }}</span>
     </div>
     <div
       v-else
@@ -160,6 +169,26 @@ function onDrop(): void {
   padding: 0 6px;
 }
 @keyframes bump { 40% { transform: scale(1.35); } }
+.worth {
+  position: absolute;
+  /* Inside the card's corner, clear of the next-payout line under it. */
+  bottom: 6px;
+  left: -10px;
+  height: 22px;
+  display: none;
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px 0 2px;
+  background: var(--panel);
+  color: var(--gold-dark);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+}
+.worth img { width: 14px; }
 .placeholder {
   width: 92px;
   aspect-ratio: 63 / 88;
@@ -187,8 +216,10 @@ function onDrop(): void {
   /* Room for both buttons even when one is hidden, so the field keeps its height and the table doesn't shift as Plant here comes and goes. */
   .actions { gap: 4px; min-height: 58px; justify-content: flex-end; }
   .actions button { padding: 4px 10px; }
-  /* Three lines once a pile is worth coins (its worth over a two-line next payout), so room for them from the start. */
-  .info { min-height: 43px; }
+  /* The worth moves onto the pile, so the text is only the next payout: two lines at most, held from the start. */
+  .worth { display: flex; }
+  .info strong { display: none; }
+  .info { min-height: 29px; }
 }
 /* A phone on its side is short, so the next-payout line stays on one line,
    in a field wide enough to hold it. */
