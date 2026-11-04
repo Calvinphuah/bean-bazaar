@@ -26,6 +26,7 @@ const stacks = computed(() =>
   <div
     class="card"
     :class="[size, { selected, highlighted }]"
+    :data-bean="bean.key"
   >
     <div class="art">
       <img
@@ -84,6 +85,8 @@ const stacks = computed(() =>
   box-shadow: 0 6px 12px -6px rgba(0, 0, 0, .75);
   transition: transform .18s ease, box-shadow .18s ease;
   user-select: none;
+  /* Holding a card shows its payout, so iOS's own image menu stays out of the way. */
+  -webkit-touch-callout: none;
 }
 .card.mini { width: 38px; border-radius: 5px; padding: 2px; }
 .card.small { width: 92px; }

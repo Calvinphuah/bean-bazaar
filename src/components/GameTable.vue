@@ -14,6 +14,7 @@ import TradeBar from "./TradeBar.vue"
 import TutorialGuide from "./TutorialGuide.vue"
 import { setCardDragImage, startTouchDrag } from "../dragImage"
 import { MAX_FIELDS, MAX_HAND_PLANTS, THIRD_FIELD_PRICE, accepts, addressYou, canHarvest, coinText, listNames } from "../rules"
+import { useHoldToPeek } from "../useHoldToPeek"
 import { useRollingNumber } from "../useRollingNumber"
 import { useTrade } from "../useTrade"
 import type { BeanKey, BeanType, FieldState, GameState, LogEvent, Move, PlayerState, TableSnapshot } from "../types"
@@ -90,6 +91,9 @@ const showPayouts = ref(false)
 const pickedPending = ref<number | null>(null)
 // The bean under the pointer in your hand, a field, the market or the trade bar, shown big with its coin row.
 const pointedBean = ref<BeanKey | null>(null)
+// The card a finger is resting on; on a phone this is the only way the preview opens.
+const hold = useHoldToPeek()
+const shownBean = computed(() => hold.held.value ?? pointedBean.value)
 
 const beanTypes = computed<Record<string, BeanType>>(() =>
   Object.fromEntries(props.game.bean_types.map((bean) => [bean.key, bean])),
@@ -99,8 +103,8 @@ const me = computed(() => props.game.players[you.value])
 const myTable = computed(() => props.table.players[you.value])
 const hand = computed<BeanKey[]>(() => me.value?.hand ?? [])
 const frontCard = computed(() => hand.value[0] ?? null)
-const pointedType = computed(() => (pointedBean.value ? beanTypes.value[pointedBean.value] : undefined))
-const pointedCopies = computed(() => hand.value.filter((bean) => bean === pointedBean.value).length)
+const pointedType = computed(() => (shownBean.value ? beanTypes.value[shownBean.value] : undefined))
+const pointedCopies = computed(() => hand.value.filter((bean) => bean === shownBean.value).length)
 const myFields = computed<FieldState[]>(() => myTable.value?.fields ?? [])
 const myCoins = useRollingNumber(() => myTable.value?.coins ?? 0)
 
@@ -314,6 +318,8 @@ function ordinal(place: number): string {
   <div
     class="game"
     :style="{ zoom: scale }"
+    @pointerdown="hold.onPointerDown"
+    @contextmenu="hold.onContextMenu"
   >
     <header class="topbar">
       <BrandMark size="small" />
@@ -632,6 +638,7 @@ function ordinal(place: number): string {
       <div
         v-if="pointedType"
         class="preview"
+        :class="{ held: !!hold.held.value }"
         aria-hidden="true"
       >
         <BeanCard
@@ -970,6 +977,8 @@ function ordinal(place: number): string {
   pointer-events: none;
 }
 .preview p { margin: 0; color: var(--ink); padding: 2px 10px; border-radius: 999px; background: var(--panel); border: 2px solid var(--ink); font-size: 12px; font-weight: 800; }
+/* A held card shows in the middle of a dimmed screen, clear of the finger holding it. */
+.preview.held { display: grid; inset: 0; align-content: center; background: rgba(30, 14, 4, .45); }
 .peek-enter-active, .peek-leave-active { transition: opacity .15s ease, transform .15s ease; }
 .peek-enter-from, .peek-leave-to { opacity: 0; transform: translateY(12px); }
 .log-spot { position: fixed; right: 16px; top: 60px; z-index: 20; }
