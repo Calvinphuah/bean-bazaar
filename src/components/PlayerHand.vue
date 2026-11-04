@@ -232,7 +232,7 @@ function onPointerDown(event: PointerEvent): void {
    the end away from the front card, so it costs no height. */
 @media (orientation: portrait) and (max-width: 1024px), (orientation: landscape) and (max-height: 500px) {
   /* The whole card shows, corner number included, clear of the home bar. */
-  .hand { padding: 16px 8px max(8px, env(safe-area-inset-bottom)); margin-bottom: 0; min-height: 100px; }
+  .hand { padding: 16px 8px max(8px, var(--safe-bottom, env(safe-area-inset-bottom))); margin-bottom: 0; min-height: 100px; }
   .swap { right: auto; left: calc(100% + 10px); bottom: 30px; width: 36px; height: 36px; padding: 0; display: grid; place-items: center; font-size: 18px; line-height: 1; }
   .swap.front-right { left: auto; right: calc(100% + 10px); }
   .swap-label { display: none; }

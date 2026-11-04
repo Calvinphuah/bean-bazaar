@@ -48,26 +48,35 @@ const MAX_SCALE = 1.5
 const UPRIGHT_MIN_FILL = 0.85
 const scale = ref(1)
 
-// The table is padded clear of the notch and home bar, so its layout has to fit
-// inside them. Only CSS knows their size; a hidden element outside the zoomed
-// table reads it.
-function safeInsets(): { x: number; top: number } {
+type Insets = { top: number; right: number; bottom: number; left: number }
+// The notch and home bar, which the table is padded clear of. Only CSS knows
+// their size; a hidden element outside the zoomed table reads it.
+const insets = ref<Insets>({ top: 0, right: 0, bottom: 0, left: 0 })
+
+function safeInsets(): Insets {
   const probe = document.createElement("div")
-  probe.style.cssText = "position: fixed; visibility: hidden; padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left)"
+  probe.style.cssText = "position: fixed; visibility: hidden; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)"
   document.body.appendChild(probe)
   const style = getComputedStyle(probe)
-  const insets = { x: parseFloat(style.paddingLeft) + parseFloat(style.paddingRight), top: parseFloat(style.paddingTop) }
+  const read = { top: parseFloat(style.paddingTop), right: parseFloat(style.paddingRight), bottom: parseFloat(style.paddingBottom), left: parseFloat(style.paddingLeft) }
   probe.remove()
-  return insets
+  return read
 }
+
+// Zoom scales padding too, so env() inside the table would shrink with it; these
+// stay the notch's true size whatever the zoom.
+const safeArea = computed(() => Object.fromEntries(
+  (["top", "right", "bottom", "left"] as const).map((side) => [`--safe-${side}`, `${insets.value[side] / scale.value}px`]),
+))
 
 function fitTable(): void {
   layout.value = (["portrait", "landscape"] as const).find((name) => window.matchMedia(LAYOUTS[name].query).matches) ?? "table"
   const size = LAYOUTS[layout.value]
-  const insets = safeInsets()
-  const fitWidth = window.innerWidth / (size.width + insets.x)
+  insets.value = safeInsets()
+  // The layout fits the screen inside the notch and home bar padding.
+  const fitWidth = (window.innerWidth - insets.value.left - insets.value.right) / size.width
   // The upright felt scrolls, so a short screen trades a little scrolling for readable text.
-  const fitHeight = Math.max(window.innerHeight / (size.height + insets.top), layout.value === "portrait" ? fitWidth * UPRIGHT_MIN_FILL : 0)
+  const fitHeight = Math.max((window.innerHeight - insets.value.top) / size.height, layout.value === "portrait" ? fitWidth * UPRIGHT_MIN_FILL : 0)
   scale.value = Math.min(MAX_SCALE, fitWidth, fitHeight)
 }
 
@@ -340,7 +349,7 @@ function ordinal(place: number): string {
 <template>
   <div
     class="game"
-    :style="{ zoom: scale }"
+    :style="{ zoom: scale, ...safeArea }"
     @pointerdown="hold.onPointerDown"
     @contextmenu="hold.onContextMenu"
   >
@@ -860,7 +869,7 @@ function ordinal(place: number): string {
 /* The whole screen is the table: bots along the top, the market in the middle,
    your farm and hand along the bottom, with the hand running off the edge. */
 /* Pinned to the window: a game table never scrolls. */
-.game { position: fixed; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(520px, 1fr) auto; overflow: clip; padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left); }
+.game { position: fixed; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(520px, 1fr) auto; overflow: clip; padding: var(--safe-top) var(--safe-right) 0 var(--safe-left); }
 
 .turn-phone { display: none; }
 @media (orientation: portrait) and (max-width: 319px), (orientation: portrait) and (max-height: 499px) {
@@ -1049,9 +1058,9 @@ function ordinal(place: number): string {
 .peek-enter-from, .peek-leave-to { opacity: 0; transform: translateY(12px); }
 .log-spot { position: fixed; right: 16px; top: 60px; z-index: 20; }
 /* Clear of the notch and home bar, where a tap goes to the phone, not the page. */
-.overlay { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); background: rgba(20, 14, 10, .72); }
+.overlay { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: max(16px, var(--safe-top)) max(16px, var(--safe-right)) max(16px, var(--safe-bottom)) max(16px, var(--safe-left)); background: rgba(20, 14, 10, .72); }
 /* Scrolling past the last card stops here instead of dragging the whole screen. */
-.payouts { width: min(980px, 100%); max-height: 90vh; max-height: calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); overflow-y: auto; overscroll-behavior: contain; display: grid; gap: 12px; padding: 20px; }
+.payouts { width: min(980px, 100%); max-height: 90vh; max-height: calc(100dvh - 32px - var(--safe-top) - var(--safe-bottom)); overflow-y: auto; overscroll-behavior: contain; display: grid; gap: 12px; padding: 20px; }
 /* Close stays in reach however far down the cards you scroll. */
 .payouts-header { position: sticky; top: -20px; z-index: 1; margin: -20px -20px 0; padding: 20px 20px 8px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; }
 .payouts p { margin: 0; }
@@ -1114,7 +1123,7 @@ function ordinal(place: number): string {
   .me { padding: 0 8px; }
   .preview { display: none; }
   /* Under the top bar, which the notch pushes down; over it, the bar's menu button covered the log's close button. */
-  .log-spot { right: 8px; top: calc(48px + env(safe-area-inset-top)); }
+  .log-spot { right: 8px; top: calc(48px + var(--safe-top)); }
   .result { padding: 18px 16px 16px; gap: 10px; }
   .result h2 { font-size: 24px; }
 }
@@ -1194,7 +1203,7 @@ function ordinal(place: number): string {
   .pending-cards :deep(.card.small) { width: 50px; }
   .pending-hint { font-size: 12px; }
   /* Short standings, so Play again stays on screen; a five-player table can still scroll to it. */
-  .overlay { padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); overflow-y: auto; }
+  .overlay { padding: max(8px, var(--safe-top)) max(8px, var(--safe-right)) max(8px, var(--safe-bottom)) max(8px, var(--safe-left)); overflow-y: auto; }
   .result { gap: 6px; padding: 12px 16px; }
   .result h2 { font-size: 20px; }
   .result-line { margin: -2px 0 2px; }
